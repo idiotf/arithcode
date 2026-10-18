@@ -15,6 +15,12 @@ type TupleIndices<T extends unknown[]> = number extends T['length']
 const zeroFraction = new Fraction(0n)
 const oneFraction = new Fraction(1n)
 
+function stringifyFrac(value: number | bigint | Fraction) {
+  return typeof value == 'number' || typeof value == 'bigint'
+    ? String(value)
+    : `${value.num}/${value.den}`
+}
+
 export abstract class Distribution {
   private currentInput: number[] | ArithmeticValue | null = null
   private currentOutput: ArithmeticRange | number[] | null = null
@@ -84,6 +90,43 @@ export abstract class Distribution {
     range.low = range.low + distancePer1 * reducedLow
   }
 
+  private decodeRange(value: ArithmeticValue, fractionRange: Fraction[]) {
+    const output = this.currentOutput as number[]
+
+    let prev = zeroFraction
+    for (let i = 0; i < fractionRange.length; ++i) {
+      const current = fractionRange[i]!
+      try {
+        {
+          const { a, b } = Fraction.commonDenominator(value, current)
+          if (a >= b) continue
+        }
+        {
+          const { a, b } = Fraction.commonDenominator(prev, value)
+          if (a > b) continue
+        }
+        output.push(i)
+        return i
+      } finally {
+        // eslint-disable-next-line no-useless-assignment
+        prev = current
+      }
+    }
+    checkLastRange: {
+      if (value.num > value.den) break checkLastRange
+
+      const { a, b } = Fraction.commonDenominator(prev, value)
+      if (a > b) break checkLastRange
+
+      output.push(fractionRange.length)
+      return fractionRange.length
+    }
+
+    throw RangeError(
+      'Cannot find matching symbol index. This is a bug in Distribution.range().',
+    )
+  }
+
   /**
    * @example
    * class MyDistribution extends Distribution {
@@ -106,13 +149,15 @@ export abstract class Distribution {
     const fractionRange = range.map((v) => new Fraction(v))
     if (
       fractionRange.some((v, i) => {
-        if (v.num < 0 || v.den < v.num) return true
+        if (v.num < 0n || v.den < v.num) return true
         if (i === 0) return false
         const { a, b } = Fraction.commonDenominator(fractionRange[i - 1]!, v)
         return a > b
       })
     ) {
-      throw TypeError(`Invalid distribution edges: ${range.join(', ')}`)
+      throw TypeError(
+        `Invalid distribution edges: ${range.map(stringifyFrac).join(', ')}`,
+      )
     }
 
     if (Array.isArray(this.currentInput)) {
@@ -125,7 +170,7 @@ export abstract class Distribution {
       }
       if (!Number.isInteger(i) || i < 0 || fractionRange.length < i) {
         throw RangeError(
-          `Invalid input data at index ${this.currentArrIdx}: ` +
+          `Invalid encoding input data at index ${this.currentArrIdx}: ` +
             `expected integer between 0 ~ ${fractionRange.length}, ` +
             `received ${i}`,
         )
@@ -137,40 +182,12 @@ export abstract class Distribution {
       return i
     } else {
       const value = this.currentInput
-      const output = this.currentOutput as number[]
-
-      let prev = zeroFraction
-      for (let i = 0; i < fractionRange.length; ++i) {
-        const current = fractionRange[i]!
-        try {
-          {
-            const { a, b } = Fraction.commonDenominator(value, current)
-            if (a >= b) continue
-          }
-          {
-            const { a, b } = Fraction.commonDenominator(prev, value)
-            if (a > b) continue
-          }
-          output.push(i)
-          return i
-        } finally {
-          // eslint-disable-next-line no-useless-assignment
-          prev = current
-        }
+      if (value.num < 0n || value.den < value.num) {
+        throw RangeError(
+          `Decoding input is out of range 0~1 (received ${stringifyFrac(value)})`,
+        )
       }
-      checkLastRange: {
-        if (value.num > value.den) break checkLastRange
-
-        const { a, b } = Fraction.commonDenominator(prev, value)
-        if (a > b) break checkLastRange
-
-        output.push(fractionRange.length)
-        return i
-      }
-
-      throw RangeError(
-        'Cannot find matching symbol index. This is a bug in Distribution.range().',
-      )
+      return this.decodeRange(value, fractionRange)
     }
   }
 
