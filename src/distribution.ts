@@ -152,7 +152,7 @@ export abstract class Distribution {
             if (a > b) continue
           }
           output.push(i)
-          return
+          return i
         } finally {
           // eslint-disable-next-line no-useless-assignment
           prev = current
@@ -165,7 +165,7 @@ export abstract class Distribution {
         if (a > b) break checkLastRange
 
         output.push(fractionRange.length)
-        return
+        return i
       }
 
       throw RangeError(
