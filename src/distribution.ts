@@ -112,19 +112,9 @@ export abstract class Distribution {
         prev = current
       }
     }
-    checkLastRange: {
-      if (value.num > value.den) break checkLastRange
 
-      const { a, b } = Fraction.commonDenominator(prev, value)
-      if (a > b) break checkLastRange
-
-      output.push(fractionRange.length)
-      return fractionRange.length
-    }
-
-    throw RangeError(
-      'Cannot find matching symbol index. This is a bug in Distribution.range().',
-    )
+    output.push(fractionRange.length)
+    return fractionRange.length
   }
 
   /**
