@@ -139,36 +139,38 @@ export abstract class Distribution {
       const value = this.currentInput
       const output = this.currentOutput as number[]
 
-      iterateRanges: {
-        let prev = zeroFraction
-        for (let i = 0; i < fractionRange.length; ++i) {
-          const current = fractionRange[i]!
-          try {
-            {
-              const { a, b } = Fraction.commonDenominator(value, current)
-              if (a >= b) continue
-            }
-            {
-              const { a, b } = Fraction.commonDenominator(prev, value)
-              if (a > b) continue
-            }
-            output.push(i)
-            break iterateRanges
-          } finally {
-            // eslint-disable-next-line no-useless-assignment
-            prev = current
+      let prev = zeroFraction
+      for (let i = 0; i < fractionRange.length; ++i) {
+        const current = fractionRange[i]!
+        try {
+          {
+            const { a, b } = Fraction.commonDenominator(value, current)
+            if (a >= b) continue
           }
-        }
-        checkLastRange: {
-          if (value.num > value.den) break checkLastRange
-
-          const { a, b } = Fraction.commonDenominator(prev, value)
-          if (a > b) break checkLastRange
-
-          output.push(fractionRange.length)
-          break iterateRanges
+          {
+            const { a, b } = Fraction.commonDenominator(prev, value)
+            if (a > b) continue
+          }
+          output.push(i)
+          return
+        } finally {
+          // eslint-disable-next-line no-useless-assignment
+          prev = current
         }
       }
+      checkLastRange: {
+        if (value.num > value.den) break checkLastRange
+
+        const { a, b } = Fraction.commonDenominator(prev, value)
+        if (a > b) break checkLastRange
+
+        output.push(fractionRange.length)
+        return
+      }
+
+      throw RangeError(
+        'Cannot find matching symbol index. This is a bug in Distribution.range().',
+      )
     }
   }
 
