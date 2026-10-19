@@ -1,4 +1,4 @@
-import { ArithmeticRange, type ArithmeticValue } from './values'
+import { ArithmeticRange, ArithmeticValue } from './values'
 import { Fraction } from './fraction'
 
 type _TupleIndicesRecursive<
@@ -55,7 +55,7 @@ export abstract class Distribution {
     try {
       const output: number[] = []
 
-      this.currentInput = value
+      this.currentInput = new ArithmeticValue(value)
       this.currentOutput = output
       this.currentArrIdx = 0
 
@@ -124,7 +124,8 @@ export abstract class Distribution {
     }
 
     const { den, a, b } = Fraction.commonDenominator(matchedPrev, matchedCurrent)
-    // TODO: grow range
+    value.num = value.num * den - a * value.den
+    value.den *= b - a
 
     output.push(matchedIdx)
     return matchedIdx
