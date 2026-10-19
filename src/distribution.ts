@@ -78,6 +78,12 @@ export abstract class Distribution {
       a: reducedLow,
       b: reducedHigh,
     } = Fraction.commonDenominator(low, high)
+    if (reducedLow === reducedHigh) {
+      throw RangeError(
+        `Invalid encoding input data at index ${this.currentArrIdx}: ` +
+          `the distribution range of ${i} has zero size`,
+      )
+    }
 
     const distancePer1 = range.high - range.low
     // === (range.high * reducedDen - range.low * reducedDen) / reducedDen
@@ -93,28 +99,35 @@ export abstract class Distribution {
   private decodeRange(value: ArithmeticValue, fractionRange: Fraction[]) {
     const output = this.currentOutput as number[]
 
+    let matchedIdx = fractionRange.length
+    let matchedPrev = fractionRange[matchedIdx - 1] ?? zeroFraction
+    let matchedCurrent = oneFraction
+
     let prev = zeroFraction
     for (let i = 0; i < fractionRange.length; ++i) {
       const current = fractionRange[i]!
       try {
-        {
-          const { a, b } = Fraction.commonDenominator(value, current)
-          if (a >= b) continue
-        }
-        {
-          const { a, b } = Fraction.commonDenominator(prev, value)
-          if (a > b) continue
-        }
-        output.push(i)
-        return i
+        const { a, b } = Fraction.commonDenominator(value, current)
+        if (a >= b) continue
+
+        const { a: c, b: d } = Fraction.commonDenominator(prev, value)
+        if (c > d) continue
+
+        matchedIdx = i
+        matchedPrev = prev
+        matchedCurrent = current
+        break
       } finally {
         // eslint-disable-next-line no-useless-assignment
         prev = current
       }
     }
 
-    output.push(fractionRange.length)
-    return fractionRange.length
+    const { den, a, b } = Fraction.commonDenominator(matchedPrev, matchedCurrent)
+    // TODO: grow range
+
+    output.push(matchedIdx)
+    return matchedIdx
   }
 
   /**
