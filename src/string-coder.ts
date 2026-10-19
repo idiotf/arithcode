@@ -1,3 +1,4 @@
+import assert from 'assert'
 import { ArithmeticValue, type ArithmeticRange } from './values'
 
 export abstract class StringCoder {
@@ -9,8 +10,43 @@ export abstract class DigitCoder extends StringCoder {
   protected abstract charMap: string
 
   override encode(range: ArithmeticRange): string {
-    console.log(range)
-    throw new Error('Method not implemented.')
+    const charMap = this.charMap
+    const digits = BigInt(charMap.length)
+
+    let code = ''
+    let { low, high, den } = range
+
+    function ceilFraction(num: bigint, den: bigint) {
+      return (num > 0n && den > 0n) || (num < 0n && den < 0n)
+        ? num / den + 1n
+        : num / den
+    }
+
+    for (;;) {
+      console.log(`${low} ~ ${high} / ${den}`)
+      const lowCeil = ceilFraction(low * digits * 2n - den, den * 2n)
+      let highCeil = ceilFraction(high * digits * 2n - den * 3n, den * 2n)
+      console.log(lowCeil, highCeil)
+
+      assert(
+        0n <= lowCeil && lowCeil < digits,
+        `0 <= ${lowCeil} (lowCeil) < ${digits} (digits)`,
+      )
+      assert(
+        0n <= highCeil && highCeil < digits,
+        `0 <= ${highCeil} (highCeil) < ${digits} (digits)`,
+      )
+
+      code += charMap[Number(highCeil)]!
+      if (lowCeil <= highCeil) break
+
+      highCeil += 2n
+      low = low * digits - lowCeil * den
+      high = high * digits - lowCeil * den
+      den *= highCeil - lowCeil
+    }
+
+    return code
   }
 
   override decode(code: string) {
