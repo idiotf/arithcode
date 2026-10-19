@@ -40,10 +40,8 @@ export abstract class DigitCoder extends StringCoder {
       code += charMap[Number(highCeil)]!
       if (lowCeil <= highCeil) break
 
-      highCeil += 2n
-      low = low * digits - lowCeil * den
-      high = high * digits - lowCeil * den
-      den *= highCeil - lowCeil
+      low = low * digits - highCeil * den
+      high = high * digits - highCeil * den
     }
 
     return code
