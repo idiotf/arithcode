@@ -59,6 +59,10 @@ export class Fraction {
     this.den = 2n ** log2den
   }
 
+  toString() {
+    return `${this.num}/${this.den}`
+  }
+
   static commonDenominator(a: Fraction, b: Fraction) {
     let den, aNum, bNum
 

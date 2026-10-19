@@ -15,12 +15,6 @@ type TupleIndices<T extends unknown[]> = number extends T['length']
 const zeroFraction = new Fraction(0n)
 const oneFraction = new Fraction(1n)
 
-function stringifyFrac(value: number | bigint | Fraction) {
-  return typeof value == 'number' || typeof value == 'bigint'
-    ? String(value)
-    : `${value.num}/${value.den}`
-}
-
 export abstract class Distribution {
   private currentInput: number[] | ArithmeticValue | null = null
   private currentOutput: ArithmeticRange | number[] | null = null
@@ -78,6 +72,7 @@ export abstract class Distribution {
       a: reducedLow,
       b: reducedHigh,
     } = Fraction.commonDenominator(low, high)
+
     if (reducedLow === reducedHigh) {
       throw RangeError(
         `Invalid encoding input data at index ${this.currentArrIdx}: ` +
@@ -123,7 +118,10 @@ export abstract class Distribution {
       }
     }
 
-    const { den, a, b } = Fraction.commonDenominator(matchedPrev, matchedCurrent)
+    const { den, a, b } = Fraction.commonDenominator(
+      matchedPrev,
+      matchedCurrent,
+    )
     value.num = value.num * den - a * value.den
     value.den *= b - a
 
@@ -150,18 +148,16 @@ export abstract class Distribution {
       throw TypeError('Cannot call Distribution.range() when idle state')
     }
 
-    const fractionRange = range.map((v) => new Fraction(v))
+    const fractionRange = range.map((v) => new ArithmeticValue(v))
     if (
       fractionRange.some((v, i) => {
-        if (v.num < 0n || v.den < v.num) return true
+        if (!v.isValid) return true
         if (i === 0) return false
         const { a, b } = Fraction.commonDenominator(fractionRange[i - 1]!, v)
         return a > b
       })
     ) {
-      throw TypeError(
-        `Invalid distribution edges: ${range.map(stringifyFrac).join(', ')}`,
-      )
+      throw TypeError(`Invalid distribution edges: ${range.join(', ')}`)
     }
 
     if (Array.isArray(this.currentInput)) {
@@ -186,9 +182,9 @@ export abstract class Distribution {
       return i
     } else {
       const value = this.currentInput
-      if (value.num < 0n || value.den < value.num) {
+      if (!value.isValid) {
         throw RangeError(
-          `Decoding input is out of range 0~1 (received ${stringifyFrac(value)})`,
+          `Decoding input is out of range 0~1 (received ${value})`,
         )
       }
       return this.decodeRange(value, fractionRange)

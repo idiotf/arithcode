@@ -1,4 +1,3 @@
-import assert from 'assert'
 import { ArithmeticValue, type ArithmeticRange } from './values'
 
 export abstract class StringCoder {
@@ -10,11 +9,16 @@ export abstract class DigitCoder extends StringCoder {
   protected abstract charMap: string
 
   override encode(range: ArithmeticRange): string {
+    if (!range.isValid) {
+      throw RangeError(`Invalid range input: ${range}`)
+    }
+
     const charMap = this.charMap
     const digits = BigInt(charMap.length)
 
     let code = ''
-    let { low, high, den } = range
+    let { low, high } = range
+    const { den } = range
 
     function ceilFraction(num: bigint, den: bigint) {
       return (num > 0n && den > 0n) || (num < 0n && den < 0n)
@@ -23,19 +27,21 @@ export abstract class DigitCoder extends StringCoder {
     }
 
     for (;;) {
-      console.log(`${low} ~ ${high} / ${den}`)
       const lowCeil = ceilFraction(low * digits * 2n - den, den * 2n)
-      let highCeil = ceilFraction(high * digits * 2n - den * 3n, den * 2n)
-      console.log(lowCeil, highCeil)
+      const highCeil = ceilFraction(high * digits * 2n - den * 3n, den * 2n)
 
-      assert(
-        0n <= lowCeil && lowCeil < digits,
-        `0 <= ${lowCeil} (lowCeil) < ${digits} (digits)`,
-      )
-      assert(
-        0n <= highCeil && highCeil < digits,
-        `0 <= ${highCeil} (highCeil) < ${digits} (digits)`,
-      )
+      if (
+        lowCeil < 0n ||
+        digits <= lowCeil ||
+        highCeil < 0n ||
+        digits <= highCeil
+      ) {
+        throw RangeError(
+          `Low or high value is out of range ` +
+            `(${lowCeil} ~ ${highCeil} / ${digits}). ` +
+            `This is an internal bug in DigitCoder.encode() method.`,
+        )
+      }
 
       code += charMap[Number(highCeil)]!
       if (lowCeil <= highCeil) break

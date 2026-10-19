@@ -26,13 +26,15 @@ describe('string-coder.ts', () => {
     })
 
     it('decode', () => {
-      const decodingTests: [encoded: string, expectedDecoded: ArithmeticValue][] =
-        [
-          ['', new ArithmeticValue(1n, 2n)],
-          ['0', new ArithmeticValue(1n, 20n)],
-          ['3', new ArithmeticValue(7n, 20n)],
-          ['03', new ArithmeticValue(7n, 200n)],
-        ]
+      const decodingTests: [
+        encoded: string,
+        expectedDecoded: ArithmeticValue,
+      ][] = [
+        ['', new ArithmeticValue(1n, 2n)],
+        ['0', new ArithmeticValue(1n, 20n)],
+        ['3', new ArithmeticValue(7n, 20n)],
+        ['03', new ArithmeticValue(7n, 200n)],
+      ]
 
       const coder = new TestOnlyCoder()
       for (const [encoded, expectedDecoded] of decodingTests) {
