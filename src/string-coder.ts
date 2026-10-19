@@ -9,8 +9,14 @@ export abstract class DigitCoder extends StringCoder {
   protected abstract charMap: string
 
   override encode(range: ArithmeticRange): string {
+    // TODO: fix lots of bugs
+
     if (!range.isValid) {
       throw RangeError(`Invalid range input: ${range}`)
+    }
+
+    if (range.low * 2n <= range.den && range.den < range.high * 2n) {
+      return ''
     }
 
     const charMap = this.charMap
@@ -32,7 +38,7 @@ export abstract class DigitCoder extends StringCoder {
 
       if (
         lowCeil < 0n ||
-        digits <= lowCeil ||
+        digits < lowCeil ||
         highCeil < 0n ||
         digits <= highCeil
       ) {
@@ -48,6 +54,7 @@ export abstract class DigitCoder extends StringCoder {
 
       low = low * digits - highCeil * den
       high = high * digits - highCeil * den
+      if (high > den) high = den
     }
 
     return code

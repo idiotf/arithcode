@@ -14,9 +14,14 @@ describe('string-coder.ts', () => {
         [
           [new ArithmeticRange(10n, 1n, 2n), '1'],
           [new ArithmeticRange(10n, 1n, 3n), '2'],
+          [new ArithmeticRange(20n, 2n, 6n), '2'],
           [new ArithmeticRange(10n, 7n, 8n), '7'],
+          [new ArithmeticRange(20n, 14n, 16n), '7'],
           [new ArithmeticRange(100n, 7n, 8n), '07'],
           [new ArithmeticRange(100n, 17n, 18n), '17'],
+          [new ArithmeticRange(100n, 50n, 51n), ''],
+          [new ArithmeticRange(101n, 50n, 51n), ''],
+          [new ArithmeticRange(101n, 49n, 50n), '49'],
         ]
 
       const coder = new TestOnlyCoder()
@@ -34,6 +39,7 @@ describe('string-coder.ts', () => {
         ['0', new ArithmeticValue(1n, 20n)],
         ['3', new ArithmeticValue(7n, 20n)],
         ['03', new ArithmeticValue(7n, 200n)],
+        ['49', new ArithmeticValue(99n, 200n)],
       ]
 
       const coder = new TestOnlyCoder()
