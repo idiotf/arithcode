@@ -55,10 +55,18 @@ describe('protocol.ts', () => {
       }
 
       const random = seedrandom('arithcode test seed')
-      const distribution = new MyDistribution(Math.floor(random() * 1234 + 1))
-      const protocol = new Protocol(distribution, coder)
+      for (let i = 0; i < 100; ++i) {
+        const distribution = new MyDistribution(Math.floor(random() * 123 + 1))
+        const protocol = new Protocol(distribution, coder)
 
-      
+        const input = Array.from(
+          { length: distribution.repeatCounts },
+          () => Math.floor(random() * 5),
+        )
+        const encoded = protocol.encode(input)
+        const decoded = protocol.decode(encoded)
+        assert.deepStrictEqual(decoded, input)
+      }
     })
   })
 })
