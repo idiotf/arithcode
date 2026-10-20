@@ -61,7 +61,7 @@ export abstract class DigitCoder extends StringCoder {
       const preferredCeil = lowDelta <= highDelta ? lowCeil : highCeil
       if (preferredCeil < 0n || digits <= preferredCeil) {
         throw RangeError(
-          `preferredCeil is out of range (0 ~ ${digits - 1n} / ${digits}). ` +
+          `preferredCeil is out of range (${preferredCeil} / ${digits}). ` +
             `This is an internal bug in DigitCoder.encode() method.`,
         )
       }
