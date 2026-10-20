@@ -11,11 +11,11 @@ export function gcd(a: bigint, b: bigint) {
   return a
 }
 
-export function ceilFraction(num: bigint, den: bigint) {                       
+export function ceilFraction(num: bigint, den: bigint) {
   return ((num > 0n && den > 0n) || (num < 0n && den < 0n)) && num % den
-    ? num / den + 1n                                                    
-    : num / den                                                         
-}                                                                       
+    ? num / den + 1n
+    : num / den
+}
 
 export function abs(v: bigint) {
   return v < 0n ? -v : v

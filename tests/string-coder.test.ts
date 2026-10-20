@@ -34,8 +34,11 @@ describe('string-coder.ts', () => {
 
       it('Sign flipped', () => {
         for (const [range, expectedEncoded] of encodingTests) {
-          const signFlipped =
-            new ArithmeticRange(-range.den, -range.low, -range.high)
+          const signFlipped = new ArithmeticRange(
+            -range.den,
+            -range.low,
+            -range.high,
+          )
 
           const actualEncoded = coder.encode(signFlipped)
           assert.deepStrictEqual(actualEncoded, expectedEncoded)
