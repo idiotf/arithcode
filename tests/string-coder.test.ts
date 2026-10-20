@@ -4,12 +4,11 @@ import { ArithmeticRange, ArithmeticValue, DigitCoder } from '../src'
 
 describe('string-coder.ts', () => {
   describe('DigitCoder', () => {
-    const charMap = '0123456789'
     class TestOnlyCoder extends DigitCoder {
-      protected override charMap = charMap
+      protected override charMap = '0123456789'
     }
 
-    it('encode', () => {
+    describe('encode', () => {
       const encodingTests: [range: ArithmeticRange, expectedEncoded: string][] =
         [
           [new ArithmeticRange(10n, 1n, 2n), '1'],
@@ -25,9 +24,23 @@ describe('string-coder.ts', () => {
         ]
 
       const coder = new TestOnlyCoder()
-      for (const [range, expectedEncoded] of encodingTests) {
-        assert.deepStrictEqual(coder.encode(range), expectedEncoded)
-      }
+
+      it('Common', () => {
+        for (const [range, expectedEncoded] of encodingTests) {
+          const actualEncoded = coder.encode(range)
+          assert.deepStrictEqual(actualEncoded, expectedEncoded)
+        }
+      })
+
+      it('Sign flipped', () => {
+        for (const [range, expectedEncoded] of encodingTests) {
+          const signFlipped =
+            new ArithmeticRange(-range.den, -range.low, -range.high)
+
+          const actualEncoded = coder.encode(signFlipped)
+          assert.deepStrictEqual(actualEncoded, expectedEncoded)
+        }
+      })
     })
 
     it('decode', () => {

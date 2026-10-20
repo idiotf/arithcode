@@ -1,4 +1,5 @@
 import { ArithmeticValue, type ArithmeticRange } from './values'
+import { ceilFraction, gcd } from './utils'
 
 export abstract class StringCoder {
   abstract encode(range: ArithmeticRange): string
@@ -9,13 +10,14 @@ export abstract class DigitCoder extends StringCoder {
   protected abstract charMap: string
 
   override encode(range: ArithmeticRange): string {
-    // TODO: fix lots of bugs
-
     if (!range.isValid) {
       throw RangeError(`Invalid range input: ${range}`)
     }
 
-    if (range.low * 2n <= range.den && range.den < range.high * 2n) {
+    let { lowAbs: low, highAbs: high } = range
+    const { denAbs: den } = range
+
+    if (low * 2n <= den && den < high * 2n) {
       return ''
     }
 
@@ -23,14 +25,6 @@ export abstract class DigitCoder extends StringCoder {
     const digits = BigInt(charMap.length)
 
     let code = ''
-    let { low, high } = range
-    const { den } = range
-
-    function ceilFraction(num: bigint, den: bigint) {
-      return (num > 0n && den > 0n) || (num < 0n && den < 0n)
-        ? num / den + 1n
-        : num / den
-    }
 
     for (;;) {
       const lowCeil = ceilFraction(low * digits * 2n - den, den * 2n)
@@ -39,7 +33,7 @@ export abstract class DigitCoder extends StringCoder {
       if (
         lowCeil < 0n ||
         digits < lowCeil ||
-        highCeil < 0n ||
+        highCeil < -1n ||
         digits <= highCeil
       ) {
         throw RangeError(
@@ -49,11 +43,34 @@ export abstract class DigitCoder extends StringCoder {
         )
       }
 
-      code += charMap[Number(highCeil)]!
-      if (lowCeil <= highCeil) break
+      if (lowCeil <= highCeil) {
+        code += charMap[Number(highCeil)]!
+        break
+      }
 
-      low = low * digits - highCeil * den
-      high = high * digits - highCeil * den
+      const divGcd = gcd(den, digits)
+      const reducedDigits = digits / divGcd
+      const reducedDen = den / divGcd
+
+      const lowNum = reducedDigits * low
+      const highNum = reducedDigits * high
+      const divNum = reducedDen * lowCeil
+
+      const lowDelta = divNum - lowNum
+      const highDelta = highNum - divNum
+      const preferredCeil = lowDelta <= highDelta ? lowCeil : highCeil
+      if (preferredCeil < 0n || digits <= preferredCeil) {
+        throw RangeError(
+          `preferredCeil is out of range (0 ~ ${digits - 1n} / ${digits}). ` +
+            `This is an internal bug in DigitCoder.encode() method.`,
+        )
+      }
+
+      code += charMap[Number(preferredCeil)]!
+      low = low * digits - preferredCeil * den
+      high = high * digits - preferredCeil * den
+
+      if (low < 0n) low = 0n
       if (high > den) high = den
     }
 
