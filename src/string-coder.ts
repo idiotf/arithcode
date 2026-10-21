@@ -1,5 +1,5 @@
 import { ArithmeticValue, type ArithmeticRange } from './values'
-import { ceilFraction, gcd } from './utils'
+import { ceilFraction } from './utils'
 
 export abstract class StringCoder {
   abstract encode(range: ArithmeticRange): string
@@ -48,13 +48,9 @@ export abstract class DigitCoder extends StringCoder {
         break
       }
 
-      const divGcd = gcd(den, digits)
-      const reducedDigits = digits / divGcd
-      const reducedDen = den / divGcd
-
-      const lowNum = reducedDigits * low
-      const highNum = reducedDigits * high
-      const divNum = reducedDen * lowCeil
+      const lowNum = digits * low
+      const highNum = digits * high
+      const divNum = den * lowCeil
 
       const lowDelta = divNum - lowNum
       const highDelta = highNum - divNum

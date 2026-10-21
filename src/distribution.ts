@@ -12,8 +12,8 @@ type TupleIndices<T extends unknown[]> = number extends T['length']
   ? number
   : _TupleIndicesRecursive<T, []>
 
-const zeroFraction = new Fraction(0n)
-const oneFraction = new Fraction(1n)
+const zeroFraction = new ArithmeticValue(0n)
+const oneFraction = new ArithmeticValue(1n)
 
 export abstract class Distribution {
   private currentInput: number[] | ArithmeticValue | null = null
@@ -91,7 +91,10 @@ export abstract class Distribution {
     range.low = range.low + distancePer1 * reducedLow
   }
 
-  private decodeRange(value: ArithmeticValue, fractionRange: Fraction[]) {
+  private decodeRange(
+    value: ArithmeticValue,
+    fractionRange: ArithmeticValue[],
+  ) {
     const output = this.currentOutput as number[]
 
     let matchedIdx = fractionRange.length
@@ -102,11 +105,12 @@ export abstract class Distribution {
     for (let i = 0; i < fractionRange.length; ++i) {
       const current = fractionRange[i]!
       try {
-        const { a, b } = Fraction.commonDenominator(value, current)
-        if (a >= b) continue
-
-        const { a: c, b: d } = Fraction.commonDenominator(prev, value)
-        if (c > d) continue
+        if (
+          value.numAbs * current.denAbs >= current.numAbs * value.denAbs ||
+          prev.numAbs * value.denAbs > value.numAbs * prev.denAbs
+        ) {
+          continue
+        }
 
         matchedIdx = i
         matchedPrev = prev
@@ -133,15 +137,29 @@ export abstract class Distribution {
    * @example
    * class MyDistribution extends Distribution {
    *   protected override distribution() {
-   *     const value = this.range([0.333, 0.667])
-   *     if (value === 0) {
-   *       this.range([0.5])
+   *     const kind = this.range([
+   *       // Vegetables
+   *       frac(1, 5),
+   *       // Fast foods
+   *       frac(2, 3),
+   *       // Fruits
+   *     ])
+   *     if (kind === 2) {
+   *       const fruit = this.range([
+   *         // Apple
+   *         0.25,
+   *         // Banana
+   *         0.625,
+   *         // Orange
+   *         0.75,
+   *         // Strawberry
+   *       ])
+   *       // ...
    *     }
    *   }
-   *   // ...
    * }
    */
-  protected range<const T extends (number | Fraction)[]>(
+  protected range<const T extends readonly (number | Fraction)[]>(
     range: T,
   ): TupleIndices<[0, ...T]> {
     if (this.currentInput === null) {
@@ -149,23 +167,32 @@ export abstract class Distribution {
     }
 
     const fractionRange = range.map((v) => new ArithmeticValue(v))
-    if (
-      fractionRange.some((v, i) => {
-        if (!v.isValid) return true
-        if (i === 0) return false
-        const { a, b } = Fraction.commonDenominator(fractionRange[i - 1]!, v)
-        return a > b
-      })
-    ) {
-      throw TypeError(`Invalid distribution edges: ${range.join(', ')}`)
-    }
+
+    fractionRange.forEach((v, i) => {
+      if (!v.isValid) {
+        throw RangeError(
+          `Invalid distribution edge at index ${i}: ` +
+            `${v} is out of range 0 ~ 1 (provided ${range.join(', ')})`,
+        )
+      }
+
+      if (i === 0) return
+      const prev = fractionRange[i - 1]!
+      const { a, b } = Fraction.commonDenominator(prev, v)
+      if (a > b) {
+        throw TypeError(
+          `Invalid distribution edges at index ${i - 1} / ${i}: ` +
+            `${prev} > ${v} (provided ${range.join(', ')})`,
+        )
+      }
+    })
 
     if (Array.isArray(this.currentInput)) {
       const i = this.currentInput[this.currentArrIdx]
       if (i === undefined) {
         throw RangeError(
-          `Too small encoding input ` +
-            `(The length of encoding input was ${this.currentInput.length})`,
+          `Too small encoding input (received ` +
+            `(${this.currentInput.length}) [${this.currentInput.join(', ')}])`,
         )
       }
       if (!Number.isInteger(i) || i < 0 || fractionRange.length < i) {
@@ -196,6 +223,7 @@ export abstract class Distribution {
    * class MyDistribution extends Distribution {
    *   protected override distribution() {
    *     this.range([0.333, 0.667])
+   *     this.range([frac(1, 3), frac(2, 3)])
    *     // ...
    *   }
    *   // ...
