@@ -1,13 +1,11 @@
 {
   "name": "arithcode",
-  "description": "Arithmetic coding + ASCII85",
+  "description": "Arithmetic coding + String coder",
   "version": "0.0.1",
   "type": "module",
-  "files": [
-    "dist"
-  ],
-  "exports": "./src/index.ts",
-  "types": "./src/index.ts",
+  "files": ["dist"],
+  "exports": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "engines": {
     "node": ">=20"
   },
@@ -19,7 +17,9 @@
     "globals": "^17.6.0",
     "jiti": "^2.7.0",
     "prettier": "^3.8.3",
+    "publint": "^0.3.25",
     "seedrandom": "^3.0.5",
+    "tsdown": "^0.23.2",
     "typescript-eslint": "^8.59.2"
   },
   "peerDependencies": {
@@ -28,6 +28,8 @@
   "scripts": {
     "lint": "eslint",
     "format": "prettier -w '**/*.ts'",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build": "tsdown --publint",
+    "prepack": "bun run build"
   }
 }

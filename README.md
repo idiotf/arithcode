@@ -1,3 +1,3 @@
 # arithcode
 
-Arithmetic coding + ASCII85
+Arithmetic coding + String coder
