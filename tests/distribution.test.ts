@@ -56,5 +56,19 @@ describe('distribution.ts', () => {
         }
       })
     })
+
+    describe('decode', () => {
+      const distribution = new MyDistribution(3)
+      const signFlipDistribution = new SignFlipDistribution(3)
+
+      it('Invalid values', () => {
+        assert.throws(() => {
+          distribution.decode(frac(0, 0))
+        })
+        assert.throws(() => {
+          signFlipDistribution.decode(frac(0, 0))
+        })
+      })
+    })
   })
 })
