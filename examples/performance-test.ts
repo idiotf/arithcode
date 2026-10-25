@@ -1,7 +1,7 @@
 import seedrandom from 'seedrandom'
 import {
   Distribution,
-  Base94Coder,
+  BASE94_CODER,
   Protocol,
   Fraction,
   ArithmeticRange,
@@ -54,7 +54,7 @@ let label
   }
   console.timeEnd(label)
 
-  const coder = new Base94Coder()
+  const coder = BASE94_CODER
   const protocol = new Protocol(distribution, coder)
   const code = protocol.encode(data)
   const value = coder.decode(code)
@@ -102,7 +102,7 @@ let label
   }
   console.timeEnd(label)
 
-  const coder = new Base94Coder()
+  const coder = BASE94_CODER
   const protocol = new Protocol(distribution, coder)
   const code = protocol.encode(data)
   const value = coder.decode(code)
@@ -117,7 +117,7 @@ let label
 {
   const REPEAT_COUNT = 10000
 
-  const coder = new Base94Coder()
+  const coder = BASE94_CODER
   const ENCODING_INPUT = new ArithmeticRange(
     fibonacci(1000),
     fibonacci(997),

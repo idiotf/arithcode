@@ -1,5 +1,5 @@
 import assert from 'assert'
-import { Distribution, Base94Coder, Protocol, frac } from '../src'
+import { Distribution, BASE94_CODER, Protocol, frac } from '../src'
 
 class MyDistribution extends Distribution {
   protected override distribution() {
@@ -10,7 +10,7 @@ class MyDistribution extends Distribution {
 }
 
 const distribution = new MyDistribution()
-const coder = new Base94Coder()
+const coder = BASE94_CODER
 const protocol = new Protocol(distribution, coder)
 
 const data = [0, 1, 2]

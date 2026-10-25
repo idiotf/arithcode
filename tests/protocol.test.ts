@@ -1,11 +1,11 @@
 import assert from 'node:assert'
 import seedrandom from 'seedrandom'
 import { describe, it } from 'node:test'
-import { Distribution, Base94Coder, Protocol, frac } from '../src'
+import { Distribution, BASE94_CODER, Protocol, frac } from '../src'
 
 describe('protocol.ts', () => {
   describe('Protocol', () => {
-    const coder = new Base94Coder()
+    const coder = BASE94_CODER
 
     it('Hard-coded test cases', () => {
       class MyDistribution extends Distribution {

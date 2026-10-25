@@ -1,5 +1,6 @@
 import { ArithmeticRange, ArithmeticValue } from './values'
 import { Fraction } from './fraction'
+import { abs } from './utils'
 
 type _TupleIndicesRecursive<
   T extends unknown[],
@@ -62,7 +63,7 @@ export abstract class Distribution {
     }
   }
 
-  private encodeRange(i: number, fractionRange: Fraction[]) {
+  private encodeRange(i: number, fractionRange: ArithmeticValue[]) {
     const range = this.currentOutput as ArithmeticRange
     const low = fractionRange[i - 1] ?? zeroFraction
     const high = fractionRange[i] ?? oneFraction
@@ -179,7 +180,7 @@ export abstract class Distribution {
       if (i === 0) return
       const prev = fractionRange[i - 1]!
       const { a, b } = Fraction.commonDenominator(prev, v)
-      if (a > b) {
+      if (abs(a) > abs(b)) {
         throw TypeError(
           `Invalid distribution edges at index ${i - 1} / ${i}: ` +
             `${prev} > ${v} (provided ${range.join(', ')})`,
@@ -211,7 +212,7 @@ export abstract class Distribution {
       const value = this.currentInput
       if (!value.isValid) {
         throw RangeError(
-          `Decoding input is out of range 0~1 (received ${value})`,
+          `Decoding input is out of range 0 ~ 1 (received ${value})`,
         )
       }
       return this.decodeRange(value, fractionRange)
