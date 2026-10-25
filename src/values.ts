@@ -56,7 +56,7 @@ export class ArithmeticValue extends Fraction {
     const sign = this.den < 0n ? -1n : 1n
     const num = this.num * sign
     const den = this.den * sign
-    return 0n <= num && num <= den
+    return den && 0n <= num && num <= den
   }
 
   get denAbs() {

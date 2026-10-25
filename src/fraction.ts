@@ -1,4 +1,4 @@
-import { gcd, isPowerOfTwo } from './utils'
+import { gcd, isPositiveIntPowerOfTwo } from './utils'
 
 export function frac(num: number | bigint, den: number | bigint): Fraction
 export function frac(value: number | bigint | Fraction): Fraction
@@ -10,6 +10,43 @@ export function frac(a: any, b?: any) {
 
 export class Fraction {
   private static readonly view = new DataView(new ArrayBuffer(8))
+
+  static commonDenominator(a: Fraction, b: Fraction) {
+    if (!a.den || !b.den) {
+      throw RangeError(
+        `Division by zero (getting commonDenominator of ${a} and ${b})`,
+      )
+    }
+
+    let den, aCommonNum, bCommonNum
+
+    const aSign = a.den < 0n ? -1n : 1n
+    const aNum = a.num * aSign
+    const aDen = a.den * aSign
+
+    const bSign = b.den < 0n ? -1n : 1n
+    const bNum = b.num * bSign
+    const bDen = b.den * bSign
+
+    if (isPositiveIntPowerOfTwo(aDen) && isPositiveIntPowerOfTwo(bDen)) {
+      if (aDen > bDen) {
+        den = aDen
+        aCommonNum = aNum
+        bCommonNum = (aDen / bDen) * bNum
+      } else {
+        den = bDen
+        aCommonNum = (bDen / aDen) * aNum
+        bCommonNum = bNum
+      }
+    } else {
+      const gcdValue = gcd(aDen, bDen)
+      den = (aDen / gcdValue) * bDen
+      aCommonNum = (bDen / gcdValue) * aNum
+      bCommonNum = (aDen / gcdValue) * bNum
+    }
+
+    return { den, a: aCommonNum, b: bCommonNum }
+  }
 
   num: bigint
   den: bigint
@@ -59,30 +96,55 @@ export class Fraction {
     this.den = 2n ** log2den
   }
 
-  toString() {
-    return `${this.num}/${this.den}`
-  }
-
-  static commonDenominator(a: Fraction, b: Fraction) {
-    let den, aNum, bNum
-
-    if (isPowerOfTwo(a.den) && isPowerOfTwo(b.den)) {
-      if (a.den > b.den) {
-        den = a.den
-        aNum = a.num
-        bNum = (a.den / b.den) * b.num
-      } else {
-        den = b.den
-        aNum = (b.den / a.den) * a.num
-        bNum = b.num
-      }
-    } else {
-      const gcdValue = gcd(a.den, b.den)
-      den = (a.den / gcdValue) * b.den
-      aNum = (b.den / gcdValue) * a.num
-      bNum = (a.den / gcdValue) * b.num
+  isLessThan(b: Fraction) {
+    if (!this.den || !b.den) {
+      throw RangeError(
+        `Division by zero (checking isLessThan for ${this} and ${b})`,
+      )
     }
 
-    return { den, a: aNum, b: bNum }
+    const aSign = this.den < 0n ? -1n : 1n
+    const aNum = this.num * aSign
+    const aDen = this.den * aSign
+
+    const bSign = b.den < 0n ? -1n : 1n
+    const bNum = b.num * bSign
+    const bDen = b.den * bSign
+
+    return aNum * bDen < bNum * aDen
+  }
+
+  isGreaterThan(b: Fraction) {
+    if (!this.den || !b.den) {
+      throw RangeError(
+        `Division by zero (checking isGreaterThan for ${this} and ${b})`,
+      )
+    }
+
+    return b.isLessThan(this)
+  }
+
+  isLessThanOrEqualTo(b: Fraction) {
+    if (!this.den || !b.den) {
+      throw RangeError(
+        `Division by zero (checking isLessThanOrEqualTo for ${this} and ${b})`,
+      )
+    }
+
+    return !b.isLessThan(this)
+  }
+
+  isGreaterThanOrEqualTo(b: Fraction) {
+    if (!this.den || !b.den) {
+      throw RangeError(
+        `Division by zero (checking isGreaterThanOrEqualTo for ${this} and ${b})`,
+      )
+    }
+
+    return !this.isLessThan(b)
+  }
+
+  toString() {
+    return `${this.num}/${this.den}`
   }
 }

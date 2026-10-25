@@ -1,4 +1,4 @@
-export function isPowerOfTwo(positiveInt: bigint) {
+export function isPositiveIntPowerOfTwo(positiveInt: bigint) {
   return !(positiveInt & (positiveInt - 1n))
 }
 

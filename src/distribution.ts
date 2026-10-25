@@ -1,6 +1,5 @@
 import { ArithmeticRange, ArithmeticValue } from './values'
 import { Fraction } from './fraction'
-import { abs } from './utils'
 
 type _TupleIndicesRecursive<
   T extends unknown[],
@@ -107,8 +106,8 @@ export abstract class Distribution {
       const current = fractionRange[i]!
       try {
         if (
-          value.numAbs * current.denAbs >= current.numAbs * value.denAbs ||
-          prev.numAbs * value.denAbs > value.numAbs * prev.denAbs
+          value.isGreaterThanOrEqualTo(current) ||
+          prev.isGreaterThan(value)
         ) {
           continue
         }
@@ -179,8 +178,7 @@ export abstract class Distribution {
 
       if (i === 0) return
       const prev = fractionRange[i - 1]!
-      const { a, b } = Fraction.commonDenominator(prev, v)
-      if (abs(a) > abs(b)) {
+      if (prev.isGreaterThan(v)) {
         throw TypeError(
           `Invalid distribution edges at index ${i - 1} / ${i}: ` +
             `${prev} > ${v} (provided ${range.join(', ')})`,
