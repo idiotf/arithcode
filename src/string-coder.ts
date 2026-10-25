@@ -80,7 +80,8 @@ export abstract class DigitCoder extends StringCoder {
     let num = 1n
     let den = 2n
 
-    for (const char of code) {
+    for (let i = 0; i < code.length; ++i) {
+      const char = code[i]!
       const charIdx = charMap.indexOf(char)
       if (charIdx === -1) {
         throw TypeError('Invalid char received: ' + char)
