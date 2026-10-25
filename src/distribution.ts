@@ -45,7 +45,7 @@ export abstract class Distribution {
     }
   }
 
-  decode(value: ArithmeticValue) {
+  decode(value: Fraction) {
     try {
       const output: number[] = []
 
