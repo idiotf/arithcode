@@ -51,14 +51,12 @@ export abstract class Distribution {
 
       this.currentInput = new ArithmeticValue(value)
       this.currentOutput = output
-      this.currentArrIdx = 0
 
       this.distribution()
       return output
     } finally {
       this.currentInput = null
       this.currentOutput = null
-      this.currentArrIdx = 0
     }
   }
 
@@ -166,14 +164,7 @@ export abstract class Distribution {
       throw TypeError('Cannot call Distribution.range() when idle state')
     }
 
-    const fractionRange = range.map((v) => {
-      if (typeof v == 'number') {
-        return new ArithmeticValue(v)
-      }
-
-      const sign = v.den < 0n ? -1n : 1n
-      return new ArithmeticValue(v.num * sign, v.den * sign)
-    })
+    const fractionRange = range.map((v) => new ArithmeticValue(v))
 
     fractionRange.forEach((v, i) => {
       if (!v.isValid) {
