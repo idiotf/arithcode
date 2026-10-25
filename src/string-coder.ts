@@ -26,9 +26,15 @@ export abstract class DigitCoder extends StringCoder {
 
     let code = ''
 
+    const den2 = den * 2n
+    const den3 = den * 3n
+
     for (;;) {
-      const lowCeil = ceilFraction(low * digits * 2n - den, den * 2n)
-      const highCeil = ceilFraction(high * digits * 2n - den * 3n, den * 2n)
+      const lowNum = low * digits
+      const highNum = high * digits
+
+      const lowCeil = ceilFraction(lowNum * 2n - den, den2)
+      const highCeil = ceilFraction(highNum * 2n - den3, den2)
 
       if (
         lowCeil < 0n ||
@@ -48,10 +54,7 @@ export abstract class DigitCoder extends StringCoder {
         break
       }
 
-      const lowNum = digits * low
-      const highNum = digits * high
       const divNum = den * lowCeil
-
       const lowDelta = divNum - lowNum
       const highDelta = highNum - divNum
       const preferredCeil = lowDelta <= highDelta ? lowCeil : highCeil
@@ -63,8 +66,8 @@ export abstract class DigitCoder extends StringCoder {
       }
 
       code += charMap[Number(preferredCeil)]!
-      low = low * digits - preferredCeil * den
-      high = high * digits - preferredCeil * den
+      low = lowNum - preferredCeil * den
+      high = highNum - preferredCeil * den
 
       if (low < 0n) low = 0n
       if (high > den) high = den
