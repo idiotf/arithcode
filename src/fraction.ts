@@ -144,6 +144,17 @@ export class Fraction {
     return !this.isLessThan(b)
   }
 
+  reduce() {
+    const gcdValue = gcd(this.num, this.den)
+    this.num /= gcdValue
+    this.den /= gcdValue
+  }
+
+  toReduced() {
+    const gcdValue = gcd(this.num, this.den)
+    return new Fraction(this.num / gcdValue, this.den / gcdValue)
+  }
+
   toString() {
     return `${this.num}/${this.den}`
   }

@@ -10,6 +10,10 @@ import {
 
 const random = seedrandom('arithcode performance test seed')
 
+function compareFraction(a: Fraction, b: Fraction) {
+  return a.isLessThan(b) ? -1 : a.isGreaterThan(b) ? 1 : 0
+}
+
 function fibonacci(n: number) {
   let prev = 1n
   let current = 0n
@@ -31,10 +35,7 @@ let label
   class MyDistribution extends Distribution {
     private static staticRange = Array.from({ length: RANGE_LENGTH - 1 }, () =>
       frac(random()),
-    ).sort((a, b) => {
-      const { a: aNum, b: bNum } = Fraction.commonDenominator(a, b)
-      return aNum < bNum ? -1 : aNum > bNum ? 1 : 0
-    })
+    ).sort(compareFraction)
 
     protected override distribution() {
       for (let i = 0; i < INPUT_LENGTH; ++i) {
@@ -79,10 +80,7 @@ let label
         const den = Math.floor(random() * MAX_DENOMINATOR + 1)
         return frac(Math.floor(random() * den + 1), den)
       },
-    ).sort((a, b) => {
-      const { a: aNum, b: bNum } = Fraction.commonDenominator(a, b)
-      return aNum < bNum ? -1 : aNum > bNum ? 1 : 0
-    })
+    ).sort(compareFraction)
 
     protected override distribution() {
       for (let i = 0; i < INPUT_LENGTH; ++i) {
