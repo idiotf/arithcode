@@ -16,3 +16,24 @@ export abstract class Serializer<T> implements DistributionLike<T> {
   protected abstract serialize(input: T): number[]
   protected abstract deserialize(serialized: number[]): T
 }
+
+export abstract class EnumSerializer<T> extends Serializer<T> {
+  protected override serialize(input: T): number[] {
+    throw 'not implemented'
+  }
+
+  protected override deserialize(serialized: number[]): T {
+    throw 'not implemented'
+  }
+
+  protected enum<K extends keyof T>(
+    key: K,
+    items: readonly T[K][],
+    fromIdx?: number,
+  ): T[K] {
+    throw 'not implemented'
+  }
+
+  protected abstract getBase(): T
+  protected abstract list(): void
+}
