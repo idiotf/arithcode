@@ -1,5 +1,6 @@
 export * from './values'
 export * from './fraction'
 export * from './distribution'
+export * from './serializer'
 export * from './string-coder'
 export * from './protocol'

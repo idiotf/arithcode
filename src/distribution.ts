@@ -1,5 +1,6 @@
 import { ArithmeticRange, ArithmeticValue } from './values'
 import { Fraction } from './fraction'
+import type { DistributionLike } from './protocol'
 
 type _TupleIndicesRecursive<
   T extends unknown[],
@@ -15,7 +16,7 @@ type TupleIndices<T extends unknown[]> = number extends T['length']
 const zeroFraction = new ArithmeticValue(0n)
 const oneFraction = new ArithmeticValue(1n)
 
-export abstract class Distribution {
+export abstract class Distribution implements DistributionLike {
   private currentInput: number[] | ArithmeticValue | null = null
   private currentOutput: ArithmeticRange | number[] | null = null
   private currentArrIdx = 0

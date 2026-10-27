@@ -1,9 +1,15 @@
 import type { Distribution } from './distribution'
 import type { StringCoder } from './string-coder'
+import type { ArithmeticRange, ArithmeticValue } from './values'
 
-export class Protocol {
+export interface DistributionLike<T = number[]> {
+  encode(input: T): ArithmeticRange
+  decode(value: ArithmeticValue): T
+}
+
+export class Protocol<T extends DistributionLike<unknown> = Distribution> {
   constructor(
-    public distribution: Distribution,
+    public distribution: T,
     public coder: StringCoder,
   ) {}
 
