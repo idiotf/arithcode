@@ -53,7 +53,7 @@ class FoodSerializer extends Serializer<Food> {
       case 2:
         return { kind: 'fruit', name: fruits[serialized[1]!]! }
       default:
-        throw TypeError(`Unrecognized food kind: ${serialized[1]}`)
+        throw TypeError(`Unrecognized food kind: ${serialized[0]}`)
     }
   }
 }
