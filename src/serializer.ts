@@ -181,7 +181,7 @@ export abstract class EnumSerializer<T extends object> extends Serializer<T> {
         )
       }
       if (this.accessedInputKeys.has(idx)) {
-        throw TypeError(`Cannot write output[${String(key)}] twice`)
+        throw TypeError(`Cannot read input[${String(key)}] twice`)
       }
       const inputItem = input[idx]!
 
