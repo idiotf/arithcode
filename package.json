@@ -7,6 +7,14 @@
   "files": ["dist"],
   "exports": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
+  "sideEffects": false,
+  "bugs": {
+    "url": "https://github.com/idiotf/arithcode/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/idiotf/arithcode.git"
+  },
   "engines": {
     "node": ">=20"
   },
