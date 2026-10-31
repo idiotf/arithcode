@@ -2,6 +2,7 @@
   "name": "arithcode",
   "description": "Arithmetic coding + String coder",
   "version": "0.0.1",
+  "license": "MIT",
   "type": "module",
   "files": ["dist"],
   "exports": "./dist/index.mjs",
