@@ -1,4 +1,4 @@
-import assert from 'assert'
+import assert from 'node:assert'
 import { BASE94_CODER, Distribution, Protocol, Serializer, frac } from '../src'
 
 const kinds = [

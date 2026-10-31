@@ -1,4 +1,4 @@
-import assert from 'assert'
+import assert from 'node:assert'
 import { Distribution, BASE94_CODER, Protocol, frac } from '../src'
 
 class MyDistribution extends Distribution {
