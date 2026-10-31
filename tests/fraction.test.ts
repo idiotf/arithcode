@@ -1,6 +1,6 @@
 import assert from 'node:assert'
 import { describe, it } from 'node:test'
-import { frac, Fraction } from '../src/fraction'
+import { frac, Fraction } from '../src'
 
 describe('fraction.ts', () => {
   it('new Fraction', () => {

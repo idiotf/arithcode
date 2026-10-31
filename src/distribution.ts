@@ -30,11 +30,14 @@ export abstract class Distribution implements DistributionLike {
       this.currentArrIdx = 0
 
       this.distribution()
-      if (this.currentArrIdx !== data.length) {
+
+      const expectedLength = this.currentArrIdx
+      const actualLength = data.length
+      if (expectedLength !== actualLength) {
         throw RangeError(
           `Too large encoding input ` +
-            `(the expected input length was ${this.currentArrIdx}, ` +
-            `received ${this.currentInput.length})`,
+            `(the expected input length was ${expectedLength}, ` +
+            `received ${actualLength})`,
         )
       }
 
