@@ -161,6 +161,7 @@ export abstract class EnumSerializer<T extends object> extends Serializer<T> {
           `Unrecognized item in input[${String(key)}]: ${String(enumItem)}`,
         )
       }
+      output[idx] = outputItem
 
       this.accessedInputKeys.add(key)
       this.accessedOutputKeys.add(idx)
