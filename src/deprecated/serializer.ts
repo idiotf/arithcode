@@ -1,7 +1,10 @@
-import type { Distribution } from './distribution'
-import type { DistributionLike } from './protocol'
-import type { ArithmeticValue } from './values'
+import type { Distribution } from '../distribution'
+import type { DistributionLike } from '../protocol'
+import type { ArithmeticValue } from '../values'
 
+/**
+ * @deprecated Consider using DistributionSerializerPeer
+ */
 export abstract class Serializer<T> implements DistributionLike<T> {
   constructor(public readonly distribution: Distribution) {}
 

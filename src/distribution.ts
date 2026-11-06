@@ -16,23 +16,26 @@ type TupleIndices<T extends unknown[]> = number extends T['length']
 const zeroFraction = new ArithmeticValue(0n)
 const oneFraction = new ArithmeticValue(1n)
 
-export abstract class Distribution implements DistributionLike {
+export abstract class DistributionSerializerPeer<
+  T,
+> implements DistributionLike<T> {
   private currentInput: number[] | ArithmeticValue | null = null
   private currentOutput: ArithmeticRange | number[] | null = null
   private currentArrIdx = 0
 
-  encode(data: number[]) {
+  encode(data: T) {
     try {
+      const serialized = this.serialize(data)
       const output = new ArithmeticRange()
 
-      this.currentInput = data
+      this.currentInput = serialized
       this.currentOutput = output
       this.currentArrIdx = 0
 
       this.distribution()
 
       const expectedLength = this.currentArrIdx
-      const actualLength = data.length
+      const actualLength = serialized.length
       if (expectedLength !== actualLength) {
         throw RangeError(
           `Too large encoding input ` +
@@ -57,7 +60,7 @@ export abstract class Distribution implements DistributionLike {
       this.currentOutput = output
 
       this.distribution()
-      return output
+      return this.deserialize(output)
     } finally {
       this.currentInput = null
       this.currentOutput = null
@@ -231,4 +234,19 @@ export abstract class Distribution implements DistributionLike {
    * }
    */
   protected abstract distribution(): void
+
+  protected abstract serialize(input: T): number[]
+  protected abstract deserialize(serialized: number[]): T
+}
+
+export abstract class Distribution extends DistributionSerializerPeer<
+  number[]
+> {
+  protected override serialize(input: number[]) {
+    return input
+  }
+
+  protected override deserialize(serialized: number[]) {
+    return serialized
+  }
 }

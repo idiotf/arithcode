@@ -1,5 +1,10 @@
 import assert from 'node:assert'
-import { BASE94_CODER, Distribution, Protocol, Serializer, frac } from '../src'
+import {
+  BASE94_CODER,
+  DistributionSerializerPeer,
+  Protocol,
+  frac,
+} from '../src'
 
 const kinds = [
   'vegetable',
@@ -28,11 +33,7 @@ interface Fruit {
   name: (typeof fruits)[number]
 }
 
-class FoodSerializer extends Serializer<Food> {
-  constructor(distribution: FoodDistribution) {
-    super(distribution)
-  }
-
+class FoodSerializer extends DistributionSerializerPeer<Food> {
   protected override serialize(input: Food) {
     switch (input.kind) {
       case 'vegetable':
@@ -56,9 +57,6 @@ class FoodSerializer extends Serializer<Food> {
         throw TypeError(`Unrecognized food kind: ${serialized[0]}`)
     }
   }
-}
-
-class FoodDistribution extends Distribution {
   protected override distribution() {
     const kind = this.range([
       // Vegetables
@@ -101,8 +99,7 @@ class FoodDistribution extends Distribution {
   }
 }
 
-const distribution = new FoodDistribution()
-const serializer = new FoodSerializer(distribution)
+const serializer = new FoodSerializer()
 const coder = BASE94_CODER
 const protocol = new Protocol(serializer, coder)
 
