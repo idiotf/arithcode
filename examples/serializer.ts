@@ -33,7 +33,7 @@ interface Fruit {
   name: (typeof fruits)[number]
 }
 
-class FoodSerializer extends DistributionSerializerPeer<Food> {
+class FoodDistribution extends DistributionSerializerPeer<Food> {
   protected override serialize(input: Food) {
     switch (input.kind) {
       case 'vegetable':
@@ -99,9 +99,9 @@ class FoodSerializer extends DistributionSerializerPeer<Food> {
   }
 }
 
-const serializer = new FoodSerializer()
+const distribution = new FoodDistribution()
 const coder = BASE94_CODER
-const protocol = new Protocol(serializer, coder)
+const protocol = new Protocol(distribution, coder)
 
 function pickRandom<T>(arr: readonly T[]) {
   return arr[Math.floor(Math.random() * arr.length)] as T
