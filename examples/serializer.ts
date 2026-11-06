@@ -57,6 +57,7 @@ class FoodDistribution extends DistributionSerializerPeer<Food> {
         throw TypeError(`Unrecognized food kind: ${serialized[0]}`)
     }
   }
+
   protected override distribution() {
     const kind = this.range([
       // Vegetables
@@ -95,6 +96,7 @@ class FoodDistribution extends DistributionSerializerPeer<Food> {
           frac(7, 9),
           // Strawberry
         ])
+        break
     }
   }
 }
