@@ -4,7 +4,7 @@ import {
   DistributionSerializerPeer,
   Protocol,
   frac,
-} from '../src'
+} from 'arithcode'
 
 const kinds = [
   'vegetable',

@@ -6,7 +6,7 @@ import {
   Fraction,
   ArithmeticRange,
   frac,
-} from '../src'
+} from 'arithcode'
 
 const random = seedrandom('arithcode performance test seed')
 

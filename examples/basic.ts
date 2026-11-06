@@ -1,5 +1,5 @@
 import assert from 'node:assert'
-import { Distribution, BASE94_CODER, Protocol, frac } from '../src'
+import { Distribution, BASE94_CODER, Protocol, frac } from 'arithcode'
 
 class MyDistribution extends Distribution {
   protected override distribution() {
