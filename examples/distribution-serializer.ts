@@ -1,10 +1,5 @@
 import assert from 'node:assert'
-import {
-  BASE94_CODER,
-  DistributionSerializer,
-  Protocol,
-  frac,
-} from 'arithcode'
+import { BASE94_CODER, DistributionSerializer, Protocol, frac } from 'arithcode'
 
 const kinds = [
   'vegetable',
@@ -55,7 +50,8 @@ class FoodDistribution extends DistributionSerializer<Food> {
     ])
 
     switch (kind) {
-      case 0: { // Vegetables
+      case 0: {
+        // Vegetables
         const idx = this.range([
           // Potato
           frac(1, 3),
@@ -65,7 +61,8 @@ class FoodDistribution extends DistributionSerializer<Food> {
         ])
         return { kind: 'vegetable', name: vegetables[idx] }
       }
-      case 1: { // Fast foods
+      case 1: {
+        // Fast foods
         const idx = this.range([
           // Pizza
           frac(2, 5),
@@ -75,7 +72,8 @@ class FoodDistribution extends DistributionSerializer<Food> {
         ])
         return { kind: 'fast-food', name: fastFoods[idx] }
       }
-      case 2: { // Fruits
+      case 2: {
+        // Fruits
         const idx = this.range([
           // Apple
           frac(2, 5),

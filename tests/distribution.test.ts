@@ -21,20 +21,23 @@ describe('distribution.ts', () => {
 
         const distribution = new MyDistribution()
 
-        let getterCalled = false, getterSuccess = false
+        let getterCalled = false,
+          getterSuccess = false
         assert.throws(() => {
-          distribution.encode(new Proxy([0], {
-            get(target, p, receiver) {
-              if (p === 'length') {
-                getterCalled = true
-                distribution['range']([])
-                getterSuccess = true
-                return 0
-              }
+          distribution.encode(
+            new Proxy([0], {
+              get(target, p, receiver) {
+                if (p === 'length') {
+                  getterCalled = true
+                  distribution['range']([])
+                  getterSuccess = true
+                  return 0
+                }
 
-              return Reflect.get(target, p, receiver)
-            },
-          }))
+                return Reflect.get(target, p, receiver)
+              },
+            }),
+          )
         })
 
         assert.ok(getterCalled)
