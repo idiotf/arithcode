@@ -25,32 +25,33 @@ export abstract class DistributionSerializerPeer<
   private currentArrIdx = 0
 
   encode(data: T) {
-    try {
-      const serialized = this.serialize(data)
-      const output = new ArithmeticRange()
+    const serialized = this.serialize(data)
+    const output = new ArithmeticRange()
 
+    let expectedLength
+    try {
       this.currentInput = serialized
       this.currentOutput = output
       this.currentArrIdx = 0
 
       this.distribution()
-
-      const expectedLength = this.currentArrIdx
-      const actualLength = serialized.length
-      if (expectedLength !== actualLength) {
-        throw RangeError(
-          `Too large encoding input ` +
-            `(the expected input length was ${expectedLength}, ` +
-            `received ${actualLength})`,
-        )
-      }
-
-      return output
+      expectedLength = this.currentArrIdx
     } finally {
       this.currentInput = null
       this.currentOutput = null
       this.currentArrIdx = 0
     }
+
+    const actualLength = serialized.length
+    if (expectedLength !== actualLength) {
+      throw RangeError(
+        `Too large encoding input ` +
+          `(the expected input length was ${expectedLength}, ` +
+          `received ${actualLength})`,
+      )
+    }
+
+    return output
   }
 
   decode(value: Fraction) {

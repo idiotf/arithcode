@@ -5,6 +5,43 @@ import { Distribution, DistributionSerializerPeer, frac } from '../src'
 
 describe('distribution.ts', () => {
   describe('DistributionSerializerPeer', () => {
+    describe('encode', () => {
+      it('Cannot call this.range in input.length getter', () => {
+        class MyDistribution extends DistributionSerializerPeer<number[]> {
+          protected override serialize(input: number[]) {
+            return input
+          }
+
+          protected override deserialize(serialized: number[]) {
+            return serialized
+          }
+
+          protected override distribution() {}
+        }
+
+        const distribution = new MyDistribution()
+
+        let getterCalled = false, getterSuccess = false
+        assert.throws(() => {
+          distribution.encode(new Proxy([0], {
+            get(target, p, receiver) {
+              if (p === 'length') {
+                getterCalled = true
+                distribution['range']([])
+                getterSuccess = true
+                return 0
+              }
+
+              return Reflect.get(target, p, receiver)
+            },
+          }))
+        })
+
+        assert.ok(getterCalled)
+        assert.ok(!getterSuccess)
+      })
+    })
+
     describe('decode', () => {
       it('Cannot call this.range in deserialize() method', () => {
         class MyDistribution extends DistributionSerializerPeer<number[]> {
