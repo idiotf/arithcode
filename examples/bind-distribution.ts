@@ -1,10 +1,5 @@
 import assert from 'assert'
-import {
-  BASE94_CODER,
-  DistributionSerializer,
-  Protocol,
-  frac,
-} from 'arithcode'
+import { BASE94_CODER, DistributionSerializer, Protocol, frac } from 'arithcode'
 
 class VarUintDistribution extends DistributionSerializer<number> {
   breakingUnit = frac(8, 99)
