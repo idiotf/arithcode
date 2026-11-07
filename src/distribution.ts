@@ -115,10 +115,7 @@ export abstract class DistributionSerializerPeer<
     for (let i = 0; i < fractionRange.length; ++i) {
       const current = fractionRange[i]!
       try {
-        if (
-          value.isGreaterThanOrEqualTo(current) ||
-          prev.isGreaterThan(value)
-        ) {
+        if (value.isGreaterThanOrEqualTo(current)) {
           continue
         }
 
