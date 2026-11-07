@@ -18,6 +18,7 @@ const oneFraction = new ArithmeticValue(1n)
 
 export abstract class DistributionSerializerPeer<
   T,
+  TDistOutput = unknown,
 > implements DistributionLike<T> {
   private currentInput: number[] | ArithmeticValue | null = null
   private currentOutput: ArithmeticRange | number[] | null = null
@@ -53,18 +54,20 @@ export abstract class DistributionSerializerPeer<
   }
 
   decode(value: Fraction) {
-    try {
-      const output: number[] = []
+    const output: number[] = []
+    let distributionOutput
 
+    try {
       this.currentInput = new ArithmeticValue(value)
       this.currentOutput = output
 
-      this.distribution()
-      return this.deserialize(output)
+      distributionOutput = this.distribution()
     } finally {
       this.currentInput = null
       this.currentOutput = null
     }
+
+    return this.deserialize(output, distributionOutput)
   }
 
   private encodeRange(i: number, fractionRange: ArithmeticValue[]) {
@@ -233,10 +236,21 @@ export abstract class DistributionSerializerPeer<
    *   // ...
    * }
    */
-  protected abstract distribution(): void
+  protected abstract distribution(): TDistOutput
 
   protected abstract serialize(input: T): number[]
-  protected abstract deserialize(serialized: number[]): T
+  protected abstract deserialize(
+    serialized: number[],
+    distributionOutput: TDistOutput,
+  ): T
+}
+
+export abstract class DistributionSerializer<
+  T,
+> extends DistributionSerializerPeer<T, T> {
+  protected override deserialize(_: unknown, output: T) {
+    return output
+  }
 }
 
 export abstract class Distribution extends DistributionSerializerPeer<

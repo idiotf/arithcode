@@ -1,9 +1,33 @@
 import assert from 'node:assert'
 import seedrandom from 'seedrandom'
 import { describe, it } from 'node:test'
-import { Distribution, frac } from '../src'
+import { Distribution, DistributionSerializerPeer, frac } from '../src'
 
 describe('distribution.ts', () => {
+  describe('DistributionSerializerPeer', () => {
+    describe('decode', () => {
+      it('Cannot call this.range in deserialize() method', () => {
+        class MyDistribution extends DistributionSerializerPeer<number[]> {
+          protected override serialize(input: number[]) {
+            return input
+          }
+
+          protected override deserialize(serialized: number[]) {
+            this.range([])
+            return serialized
+          }
+
+          protected override distribution() {}
+        }
+
+        const distribution = new MyDistribution()
+        assert.throws(() => {
+          distribution.decode(frac(1, 2))
+        })
+      })
+    })
+  })
+
   describe('Distribution', () => {
     class MyDistribution extends Distribution {
       constructor(public repeatCounts: number) {
