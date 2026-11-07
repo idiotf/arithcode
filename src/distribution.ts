@@ -23,6 +23,7 @@ export abstract class DistributionSerializerPeer<
   private currentInput: number[] | ArithmeticValue | null = null
   private currentOutput: ArithmeticRange | number[] | null = null
   private currentArrIdx = 0
+  private currentBind: DistributionSerializerPeer<unknown> | null = null
 
   encode(data: T) {
     const serialized = this.serialize(data)
@@ -142,6 +143,15 @@ export abstract class DistributionSerializerPeer<
     return matchedIdx
   }
 
+  bind(to: DistributionSerializerPeer<unknown>) {
+    try {
+      this.currentBind = to
+      return this.distribution()
+    } finally {
+      this.currentBind = null
+    }
+  }
+
   /**
    * @example
    * class MyDistribution extends Distribution {
@@ -171,6 +181,10 @@ export abstract class DistributionSerializerPeer<
   protected range<const T extends readonly (number | Fraction)[]>(
     range: T,
   ): TupleIndices<[0, ...T]> {
+    if (this.currentBind) {
+      return this.currentBind.range(range)
+    }
+
     if (this.currentInput === null) {
       throw TypeError('Cannot call Distribution.range() when idle state')
     }
