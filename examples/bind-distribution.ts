@@ -2,7 +2,7 @@ import assert from 'assert'
 import { BASE94_CODER, DistributionSerializer, Protocol, frac } from 'arithcode'
 
 class VarUintDistribution extends DistributionSerializer<number> {
-  breakingUnit = frac(8, 99)
+  breakingUnit = frac(1, 500)
 
   override serialize(input: number) {
     const arr = Array<number>(input + 1).fill(1)
