@@ -28,19 +28,22 @@ export abstract class DistributionSerializerPeer<
   encode(data: T) {
     const serialized = this.serialize(data)
     const output = new ArithmeticRange()
-
     let expectedLength
+
+    const { currentInput, currentOutput, currentArrIdx, currentBind } = this
     try {
       this.currentInput = serialized
       this.currentOutput = output
       this.currentArrIdx = 0
+      this.currentBind = null
 
       this.distribution()
       expectedLength = this.currentArrIdx
     } finally {
-      this.currentInput = null
-      this.currentOutput = null
-      this.currentArrIdx = 0
+      this.currentInput = currentInput
+      this.currentOutput = currentOutput
+      this.currentArrIdx = currentArrIdx
+      this.currentBind = currentBind
     }
 
     const actualLength = serialized.length
@@ -59,14 +62,17 @@ export abstract class DistributionSerializerPeer<
     const output: number[] = []
     let distributionOutput
 
+    const { currentInput, currentOutput, currentBind } = this
     try {
       this.currentInput = new ArithmeticValue(value)
       this.currentOutput = output
+      this.currentBind = null
 
       distributionOutput = this.distribution()
     } finally {
-      this.currentInput = null
-      this.currentOutput = null
+      this.currentInput = currentInput
+      this.currentOutput = currentOutput
+      this.currentBind = currentBind
     }
 
     return this.deserialize(output, distributionOutput)
@@ -114,19 +120,16 @@ export abstract class DistributionSerializerPeer<
     let prev = zeroFraction
     for (let i = 0; i < fractionRange.length; ++i) {
       const current = fractionRange[i]!
-      try {
-        if (value.isGreaterThanOrEqualTo(current)) {
-          continue
-        }
 
-        matchedIdx = i
-        matchedPrev = prev
-        matchedCurrent = current
-        break
-      } finally {
-        // eslint-disable-next-line no-useless-assignment
+      if (value.isGreaterThanOrEqualTo(current)) {
         prev = current
+        continue
       }
+
+      matchedIdx = i
+      matchedPrev = prev
+      matchedCurrent = current
+      break
     }
 
     const { den, a, b } = Fraction.commonDenominator(
@@ -141,11 +144,17 @@ export abstract class DistributionSerializerPeer<
   }
 
   bind(to: DistributionSerializerPeer<unknown>) {
+    if (to.currentInput === null && to.currentBind === null) {
+      throw TypeError('Cannot call Distribution.bind(B) when B is idle')
+    }
+
+    const prevBind = this.currentBind
     try {
-      this.currentBind = to
+      this.currentBind = to.currentBind ?? to
+      if (this.currentBind === this) this.currentBind = null
       return this.distribution()
     } finally {
-      this.currentBind = null
+      this.currentBind = prevBind
     }
   }
 

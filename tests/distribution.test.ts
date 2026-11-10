@@ -1,21 +1,40 @@
 import assert from 'node:assert'
 import seedrandom from 'seedrandom'
 import { describe, it } from 'node:test'
-import { Distribution, DistributionSerializerPeer, frac } from '../src'
+import {
+  Distribution,
+  DistributionSerializerPeer,
+  ArithmeticRange,
+  frac,
+  type Fraction,
+} from '../src'
 
 describe('distribution.ts', () => {
   describe('DistributionSerializerPeer', () => {
     describe('encode', () => {
+      it('Call encode() in distribution() method', () => {
+        class MyDistribution extends Distribution {
+          isBinded = false
+
+          protected override distribution() {
+            if (this.isBinded) {
+              this.range([])
+              return
+            }
+            this.isBinded = true
+            this.encode([0])
+            assert.doesNotThrow(() => {
+              this.range([0.5])
+            })
+          }
+        }
+
+        const distribution = new MyDistribution()
+        distribution.encode([1])
+      })
+
       it('Cannot call this.range in input.length getter', () => {
-        class MyDistribution extends DistributionSerializerPeer<number[]> {
-          protected override serialize(input: number[]) {
-            return input
-          }
-
-          protected override deserialize(serialized: number[]) {
-            return serialized
-          }
-
+        class MyDistribution extends Distribution {
           protected override distribution() {}
         }
 
@@ -43,9 +62,63 @@ describe('distribution.ts', () => {
         assert.ok(getterCalled)
         assert.ok(!getterSuccess)
       })
+
+      it('Call encode() when bind() was called', () => {
+        class A extends Distribution {
+          b = new B()
+
+          protected override range(): never {
+            assert.ok(false)
+          }
+
+          protected override distribution() {
+            this.b.bind(this)
+          }
+        }
+
+        class B extends Distribution {
+          isBinded = false
+
+          protected override distribution() {
+            if (this.isBinded) {
+              this.range([0.5])
+              return
+            }
+            this.isBinded = true
+            assert.deepStrictEqual(
+              this.encode([1]),
+              new ArithmeticRange(2n, 1n, 2n),
+            )
+          }
+        }
+
+        const distribution = new A()
+        distribution.encode([])
+      })
     })
 
     describe('decode', () => {
+      it('Call decode() in distribution() method', () => {
+        class MyDistribution extends Distribution {
+          isBinded = false
+
+          protected override distribution() {
+            if (this.isBinded) {
+              this.range([])
+              return
+            }
+            this.isBinded = true
+            this.decode(frac(1, 2))
+            assert.doesNotThrow(() => {
+              this.range([0.5])
+            })
+          }
+        }
+
+        const distribution = new MyDistribution()
+        distribution.decode(frac(1, 2))
+      })
+
       it('Cannot call this.range in deserialize() method', () => {
         class MyDistribution extends DistributionSerializerPeer<number[]> {
           protected override serialize(input: number[]) {
@@ -64,6 +137,103 @@ describe('distribution.ts', () => {
         assert.throws(() => {
           distribution.decode(frac(1, 2))
         })
+      })
+
+      it('Call decode() when bind() was called', () => {
+        class A extends Distribution {
+          b = new B()
+
+          protected override range(): never {
+            assert.ok(false)
+          }
+
+          protected override distribution() {
+            this.b.bind(this)
+          }
+        }
+
+        class B extends Distribution {
+          isBinded = false
+
+          protected override distribution() {
+            if (this.isBinded) {
+              this.range([0.5])
+              return
+            }
+            this.isBinded = true
+            assert.deepStrictEqual(this.decode(frac(3, 4)), [1])
+          }
+        }
+
+        const distribution = new A()
+        assert.deepStrictEqual(distribution.decode(frac(1, 2)), [])
+      })
+    })
+
+    describe('bind', () => {
+      it('Bind recursive', () => {
+        class A extends Distribution {
+          isBinded = false
+          private rangeCallCnt = 0
+
+          protected override range<
+            const T extends readonly (number | Fraction)[],
+          >(range: T) {
+            assert.ok(++this.rangeCallCnt < 2)
+            return super.range(range)
+          }
+
+          protected override distribution() {
+            if (this.isBinded) {
+              this.range([])
+            } else {
+              this.isBinded = true
+              this.bind(this)
+            }
+          }
+        }
+
+        const distribution = new A()
+        distribution.encode([0])
+      })
+
+      it('Bind circular', () => {
+        class A extends Distribution {
+          isBinded = false
+          b = new B(this)
+
+          protected override distribution() {
+            if (this.isBinded) {
+              this.range([])
+            } else {
+              this.isBinded = true
+              this.b.bind(this)
+            }
+          }
+        }
+
+        class B extends Distribution {
+          private rangeCallCnt = 0
+
+          constructor(public a: A) {
+            super()
+          }
+
+          protected override range<
+            const T extends readonly (number | Fraction)[],
+          >(range: T) {
+            assert.ok(++this.rangeCallCnt < 2)
+            return super.range(range)
+          }
+
+          protected override distribution() {
+            this.range([])
+            this.a.bind(this)
+          }
+        }
+
+        const distribution = new A()
+        distribution.encode([0, 0])
       })
     })
   })
