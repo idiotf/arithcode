@@ -6,6 +6,7 @@ import {
   Fraction,
   ArithmeticRange,
   frac,
+  type DistributionCtx,
 } from 'arithcode'
 
 const random = seedrandom('arithcode performance test seed')
@@ -37,9 +38,9 @@ let label
       frac(random()),
     ).sort(compareFraction)
 
-    protected override distribution() {
+    protected override distribution(ctx: DistributionCtx) {
       for (let i = 0; i < INPUT_LENGTH; ++i) {
-        this.range(MyDistribution.staticRange)
+        ctx.range(MyDistribution.staticRange)
       }
     }
   }
@@ -82,9 +83,9 @@ let label
       },
     ).sort(compareFraction)
 
-    protected override distribution() {
+    protected override distribution(ctx: DistributionCtx) {
       for (let i = 0; i < INPUT_LENGTH; ++i) {
-        this.range(MyDistribution.staticRange)
+        ctx.range(MyDistribution.staticRange)
       }
     }
   }

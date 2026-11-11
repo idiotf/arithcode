@@ -1,7 +1,13 @@
 import assert from 'node:assert'
 import seedrandom from 'seedrandom'
 import { describe, it } from 'node:test'
-import { Distribution, BASE94_CODER, Protocol, frac } from '../src'
+import {
+  Distribution,
+  BASE94_CODER,
+  Protocol,
+  frac,
+  type DistributionCtx,
+} from '../src'
 
 describe('protocol.ts', () => {
   describe('Protocol', () => {
@@ -9,8 +15,8 @@ describe('protocol.ts', () => {
 
     it('Hard-coded test cases', () => {
       class MyDistribution extends Distribution {
-        protected override distribution() {
-          const repeatCount = this.range([
+        protected override distribution(ctx: DistributionCtx) {
+          const repeatCount = ctx.range([
             frac(1, 2),
             frac(3, 4),
             frac(7, 8),
@@ -18,7 +24,7 @@ describe('protocol.ts', () => {
           ])
 
           for (let i = 0; i < repeatCount; ++i) {
-            this.range([frac(1, 3), frac(1, 2), frac(2, 3)])
+            ctx.range([frac(1, 3), frac(1, 2), frac(2, 3)])
           }
         }
       }
@@ -47,9 +53,9 @@ describe('protocol.ts', () => {
           super()
         }
 
-        protected override distribution() {
+        protected override distribution(ctx: DistributionCtx) {
           for (let i = 0; i < this.repeatCounts; ++i) {
-            this.range([frac(1, 5), frac(2, 5), frac(3, 5), frac(4, 5)])
+            ctx.range([frac(1, 5), frac(2, 5), frac(3, 5), frac(4, 5)])
           }
         }
       }

@@ -16,67 +16,14 @@ type TupleIndices<T extends unknown[]> = number extends T['length']
 const zeroFraction = new ArithmeticValue(0n)
 const oneFraction = new ArithmeticValue(1n)
 
-export abstract class DistributionSerializerPeer<
-  T,
-  TDistOutput = unknown,
-> implements DistributionLike<T> {
-  private currentInput: number[] | ArithmeticValue | null = null
-  private currentOutput: ArithmeticRange | number[] | null = null
+export type { DistributionCtx }
+class DistributionCtx {
   private currentArrIdx = 0
-  private currentBind: DistributionSerializerPeer<unknown> | null = null
 
-  encode(data: T) {
-    const serialized = this.serialize(data)
-    const output = new ArithmeticRange()
-    let expectedLength
-
-    const { currentInput, currentOutput, currentArrIdx, currentBind } = this
-    try {
-      this.currentInput = serialized
-      this.currentOutput = output
-      this.currentArrIdx = 0
-      this.currentBind = null
-
-      this.distribution()
-      expectedLength = this.currentArrIdx
-    } finally {
-      this.currentInput = currentInput
-      this.currentOutput = currentOutput
-      this.currentArrIdx = currentArrIdx
-      this.currentBind = currentBind
-    }
-
-    const actualLength = serialized.length
-    if (expectedLength !== actualLength) {
-      throw RangeError(
-        `Too large encoding input ` +
-          `(the expected input length was ${expectedLength}, ` +
-          `received ${actualLength})`,
-      )
-    }
-
-    return output
-  }
-
-  decode(value: Fraction) {
-    const output: number[] = []
-    let distributionOutput
-
-    const { currentInput, currentOutput, currentBind } = this
-    try {
-      this.currentInput = new ArithmeticValue(value)
-      this.currentOutput = output
-      this.currentBind = null
-
-      distributionOutput = this.distribution()
-    } finally {
-      this.currentInput = currentInput
-      this.currentOutput = currentOutput
-      this.currentBind = currentBind
-    }
-
-    return this.deserialize(output, distributionOutput)
-  }
+  constructor(
+    private currentInput: number[] | ArithmeticValue | null = null,
+    private currentOutput: ArithmeticRange | number[] | null = null,
+  ) {}
 
   private encodeRange(i: number, fractionRange: ArithmeticValue[]) {
     const range = this.currentOutput as ArithmeticRange
@@ -143,23 +90,12 @@ export abstract class DistributionSerializerPeer<
     return matchedIdx
   }
 
-  bind(to: DistributionSerializerPeer<unknown>) {
-    if (to.currentInput === null && to.currentBind === null) {
-      throw TypeError('Cannot call Distribution.bind(B) when B is idle')
+  use<T>(distribution: DistributionSerializerPeer<unknown, T>) {
+    if (this.currentInput === null) {
+      throw TypeError('Cannot call DistributionCtx.use() after disposed')
     }
 
-    const prevBind = this.currentBind
-    try {
-      let bindTarget = to
-      while (bindTarget.currentBind) {
-        bindTarget = bindTarget.currentBind
-      }
-      this.currentBind = bindTarget === this ? null : bindTarget
-
-      return this.distribution()
-    } finally {
-      this.currentBind = prevBind
-    }
+    return distribution['distribution'](this)
   }
 
   /**
@@ -188,15 +124,11 @@ export abstract class DistributionSerializerPeer<
    *   }
    * }
    */
-  protected range<const T extends readonly (number | Fraction)[]>(
+  range<const T extends readonly (number | Fraction)[]>(
     range: T,
   ): TupleIndices<[0, ...T]> {
-    if (this.currentBind) {
-      return this.currentBind.range(range)
-    }
-
     if (this.currentInput === null) {
-      throw TypeError('Cannot call Distribution.range() when idle state')
+      throw TypeError('Cannot call DistributionCtx.range() after disposed')
     }
 
     const fractionRange = range.map((v) => new ArithmeticValue(v))
@@ -249,6 +181,42 @@ export abstract class DistributionSerializerPeer<
       return this.decodeRange(value, fractionRange)
     }
   }
+}
+
+export abstract class DistributionSerializerPeer<
+  T,
+  TDistOutput = unknown,
+> implements DistributionLike<T> {
+  encode(data: T) {
+    const serialized = this.serialize(data)
+    const output = new ArithmeticRange()
+
+    const ctx = new DistributionCtx(serialized, output)
+    this.distribution(ctx)
+    ctx['currentInput'] = null
+
+    const expectedLength = ctx['currentArrIdx']
+    const actualLength = serialized.length
+    if (expectedLength !== actualLength) {
+      throw RangeError(
+        `Too large encoding input ` +
+          `(the expected input length was ${expectedLength}, ` +
+          `received ${actualLength})`,
+      )
+    }
+
+    return output
+  }
+
+  decode(value: Fraction) {
+    const output: number[] = []
+
+    const ctx = new DistributionCtx(new ArithmeticValue(value), output)
+    const distributionOutput = this.distribution(ctx)
+    ctx['currentInput'] = null
+
+    return this.deserialize(output, distributionOutput)
+  }
 
   /**
    * @example
@@ -261,7 +229,7 @@ export abstract class DistributionSerializerPeer<
    *   // ...
    * }
    */
-  protected abstract distribution(): TDistOutput
+  protected abstract distribution(ctx: DistributionCtx): TDistOutput
 
   protected abstract serialize(input: T): number[]
   protected abstract deserialize(

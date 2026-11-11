@@ -4,6 +4,7 @@ import {
   DistributionSerializerPeer,
   Protocol,
   frac,
+  type DistributionCtx,
 } from 'arithcode'
 
 const kinds = [
@@ -58,8 +59,8 @@ class FoodDistribution extends DistributionSerializerPeer<Food> {
     }
   }
 
-  protected override distribution() {
-    const kind = this.range([
+  protected override distribution(ctx: DistributionCtx) {
+    const kind = ctx.range([
       // Vegetables
       frac(1, 5),
       // Fast foods
@@ -69,7 +70,7 @@ class FoodDistribution extends DistributionSerializerPeer<Food> {
 
     switch (kind) {
       case 0: // Vegetables
-        this.range([
+        ctx.range([
           // Potato
           frac(1, 3),
           // Carrot
@@ -78,7 +79,7 @@ class FoodDistribution extends DistributionSerializerPeer<Food> {
         ])
         break
       case 1: // Fast foods
-        this.range([
+        ctx.range([
           // Pizza
           frac(2, 5),
           // Hamburger
@@ -87,7 +88,7 @@ class FoodDistribution extends DistributionSerializerPeer<Food> {
         ])
         break
       case 2: // Fruits
-        this.range([
+        ctx.range([
           // Apple
           frac(2, 5),
           // Banana

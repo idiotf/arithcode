@@ -1,5 +1,11 @@
 import assert from 'assert'
-import { BASE94_CODER, DistributionSerializer, Protocol, frac } from 'arithcode'
+import {
+  DistributionSerializer,
+  BASE94_CODER,
+  Protocol,
+  frac,
+  type DistributionCtx,
+} from 'arithcode'
 
 class VarUintDistribution extends DistributionSerializer<number> {
   breakingUnit = frac(1, 500)
@@ -10,10 +16,10 @@ class VarUintDistribution extends DistributionSerializer<number> {
     return arr
   }
 
-  protected override distribution() {
+  protected override distribution(ctx: DistributionCtx) {
     let int = 0
     for (;;) {
-      const v = this.range([this.breakingUnit])
+      const v = ctx.range([this.breakingUnit])
       if (!v) break
       ++int
     }
@@ -36,10 +42,10 @@ class PositionDistribution extends DistributionSerializer<Position> {
     ]
   }
 
-  protected override distribution(): Position {
+  protected override distribution(ctx: DistributionCtx): Position {
     return {
-      x: this.varUint.bind(this),
-      y: this.varUint.bind(this),
+      x: ctx.use(this.varUint),
+      y: ctx.use(this.varUint),
     }
   }
 }
