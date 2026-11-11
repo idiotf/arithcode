@@ -235,6 +235,85 @@ describe('distribution.ts', () => {
         const distribution = new A()
         distribution.encode([0, 0])
       })
+
+      it('Encode & bind reversed circular', () => {
+        class A extends Distribution {
+          isBinded = false
+          b = new B(this)
+          c = this.b.c
+
+          protected override distribution() {
+            if (this.isBinded) {
+              this.b.bind(this.c)
+              return
+            }
+            this.isBinded = true
+            assert.deepStrictEqual(
+              this.b.encode([2]),
+              new ArithmeticRange(4n, 3n, 4n),
+            )
+            this.range([0.5, 0.75, 0.75])
+          }
+        }
+
+        class B extends Distribution {
+          isBinded = false
+          c: C
+
+          constructor(public a: A) {
+            super()
+            this.c = new C(this)
+          }
+
+          protected override distribution() {
+            if (this.isBinded) {
+              this.c.bind(this.a)
+              return
+            }
+            this.isBinded = true
+            assert.deepStrictEqual(
+              this.c.encode([1]),
+              new ArithmeticRange(2n, 1n, 2n),
+            )
+            this.range([0.5, 0.75, 1])
+          }
+        }
+
+        class C extends Distribution {
+          isBinded = false
+          isCircularBinded = false
+          rangeCallCnt = 0
+          a: A
+
+          constructor(public b: B) {
+            super()
+            this.a = b.a
+          }
+
+          protected override range<
+            const T extends readonly (number | Fraction)[],
+          >(range: T) {
+            assert.ok(++this.rangeCallCnt < 2)
+            return super.range(range)
+          }
+
+          protected override distribution() {
+            if (this.isBinded) {
+              if (this.isCircularBinded) {
+                return
+              }
+              this.isCircularBinded = true
+              this.range([0.5])
+              return
+            }
+            this.isBinded = true
+            this.a.bind(this.b)
+          }
+        }
+
+        const distribution = new A()
+        distribution.encode([3])
+      })
     })
   })
 

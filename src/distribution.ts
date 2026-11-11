@@ -150,8 +150,12 @@ export abstract class DistributionSerializerPeer<
 
     const prevBind = this.currentBind
     try {
-      this.currentBind = to.currentBind ?? to
-      if (this.currentBind === this) this.currentBind = null
+      let bindTarget = to
+      while (bindTarget.currentBind) {
+        bindTarget = bindTarget.currentBind
+      }
+      this.currentBind = bindTarget === this ? null : bindTarget
+
       return this.distribution()
     } finally {
       this.currentBind = prevBind
