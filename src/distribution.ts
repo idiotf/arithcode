@@ -101,8 +101,8 @@ class DistributionCtx {
   /**
    * @example
    * class MyDistribution extends Distribution {
-   *   protected override distribution() {
-   *     const kind = this.range([
+   *   protected override distribution(ctx: DistributionCtx) {
+   *     const kind = ctx.range([
    *       // Vegetables
    *       frac(1, 5),
    *       // Fast foods
@@ -110,7 +110,7 @@ class DistributionCtx {
    *       // Fruits
    *     ])
    *     if (kind === 2) {
-   *       const fruit = this.range([
+   *       const fruit = ctx.range([
    *         // Apple
    *         0.25,
    *         // Banana
@@ -221,9 +221,9 @@ export abstract class DistributionSerializerPeer<
   /**
    * @example
    * class MyDistribution extends Distribution {
-   *   protected override distribution() {
-   *     this.range([0.333, 0.667])
-   *     this.range([frac(1, 3), frac(2, 3)])
+   *   protected override distribution(ctx: DistributionCtx) {
+   *     ctx.range([0.333, 0.667])
+   *     ctx.range([frac(1, 3), frac(2, 3)])
    *     // ...
    *   }
    *   // ...
