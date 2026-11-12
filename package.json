@@ -1,7 +1,7 @@
 {
   "name": "arithcode",
   "description": "Arithmetic coding + String coder",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "license": "MIT",
   "type": "module",
   "files": [
