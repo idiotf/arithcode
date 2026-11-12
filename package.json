@@ -4,7 +4,9 @@
   "version": "0.4.0",
   "license": "MIT",
   "type": "module",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "exports": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
   "sideEffects": false,
@@ -34,7 +36,7 @@
   },
   "scripts": {
     "lint": "eslint",
-    "format": "prettier -w '**/*.ts'",
+    "format": "prettier -w '**/*.{ts,json}'",
     "typecheck": "tsc --noEmit",
     "build": "tsdown --publint",
     "prepack": "bun run build"
