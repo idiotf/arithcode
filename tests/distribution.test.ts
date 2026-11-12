@@ -95,6 +95,32 @@ describe('distribution.ts', () => {
         const distribution = new A()
         distribution.encode([])
       })
+
+      it(
+        'Cannot call DistributionCtx.range() after ' +
+          'Distribution.distribution throws',
+        () => {
+          const error = Error()
+
+          class MyDistribution extends Distribution {
+            ctx?: DistributionCtx
+
+            protected override distribution(ctx: DistributionCtx) {
+              this.ctx = ctx
+              throw error
+            }
+          }
+
+          const distribution = new MyDistribution()
+          assert.throws(() => {
+            distribution.encode([0])
+          }, error)
+
+          assert.throws(() => {
+            distribution.ctx!.range([])
+          })
+        },
+      )
     })
 
     describe('decode', () => {

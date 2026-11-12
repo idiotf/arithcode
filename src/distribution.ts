@@ -192,8 +192,11 @@ export abstract class DistributionSerializerPeer<
     const output = new ArithmeticRange()
 
     const ctx = new DistributionCtx(serialized, output)
-    this.distribution(ctx)
-    ctx['currentInput'] = null
+    try {
+      this.distribution(ctx)
+    } finally {
+      ctx['currentInput'] = null
+    }
 
     const expectedLength = ctx['currentArrIdx']
     const actualLength = serialized.length
@@ -212,8 +215,12 @@ export abstract class DistributionSerializerPeer<
     const output: number[] = []
 
     const ctx = new DistributionCtx(new ArithmeticValue(value), output)
-    const distributionOutput = this.distribution(ctx)
-    ctx['currentInput'] = null
+    let distributionOutput
+    try {
+      distributionOutput = this.distribution(ctx)
+    } finally {
+      ctx['currentInput'] = null
+    }
 
     return this.deserialize(output, distributionOutput)
   }
