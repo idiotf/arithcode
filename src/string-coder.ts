@@ -112,22 +112,22 @@ export class Base64Coder extends DigitCoder {
   protected override charMap =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
 }
-export const BASE64_CODER = new Base64Coder()
+export const BASE64_CODER = /* #__PURE__ */ new Base64Coder()
 
 export class Base64UrlCoder extends DigitCoder {
   protected override charMap =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'
 }
-export const BASE64URL_CODER = new Base64UrlCoder()
+export const BASE64URL_CODER = /* #__PURE__ */ new Base64UrlCoder()
 
 export class Z85Coder extends DigitCoder {
   protected override charMap =
     '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-:+=^!/*?&<>()[]{}@%$#'
 }
-export const Z85_CODER = new Z85Coder()
+export const Z85_CODER = /* #__PURE__ */ new Z85Coder()
 
 export class Base94Coder extends DigitCoder {
   protected override charMap =
     '!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
 }
-export const BASE94_CODER = new Base94Coder()
+export const BASE94_CODER = /* #__PURE__ */ new Base94Coder()

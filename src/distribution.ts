@@ -13,8 +13,8 @@ type TupleIndices<T extends unknown[]> = number extends T['length']
   ? number
   : _TupleIndicesRecursive<T, []>
 
-const zeroFraction = new ArithmeticValue(0n)
-const oneFraction = new ArithmeticValue(1n)
+const zeroFraction = /* #__PURE__ */ new ArithmeticValue(0n)
+const oneFraction = /* #__PURE__ */ new ArithmeticValue(1n)
 
 export type { DistributionCtx }
 class DistributionCtx {
