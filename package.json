@@ -38,7 +38,7 @@
     "lint": "eslint",
     "format": "prettier -w '**/*.{ts,json}'",
     "typecheck": "tsc --noEmit",
-    "build": "tsdown --publint",
+    "build": "tsdown --sourcemap --publint",
     "prepack": "bun run build"
   }
 }
