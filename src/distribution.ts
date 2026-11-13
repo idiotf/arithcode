@@ -91,6 +91,13 @@ class DistributionCtx {
   }
 
   use<T>(distribution: DistributionSerializerPeer<unknown, T>) {
+    if (!(distribution instanceof DistributionSerializerPeer)) {
+      throw TypeError(
+        'DistributionCtx.use(): ' +
+          'The first argument must be DistributionSerializerPeer',
+      )
+    }
+
     if (this.currentInput === null) {
       throw TypeError('Cannot call DistributionCtx.use() after disposed')
     }
@@ -127,6 +134,21 @@ class DistributionCtx {
   range<const T extends readonly (number | Fraction)[]>(
     range: T,
   ): TupleIndices<[0, ...T]> {
+    if (!Array.isArray(range)) {
+      throw TypeError(
+        'DistributionCtx.range(): The range must be ' +
+          'an array of numbers or Fraction instances',
+      )
+    }
+    for (let i = 0; i < range.length; ++i) {
+      if (!(i in range)) {
+        throw TypeError(
+          `DistributionCtx.range(): The range must not have empty item ` +
+            `(received empty item at index ${i})`,
+        )
+      }
+    }
+
     if (this.currentInput === null) {
       throw TypeError('Cannot call DistributionCtx.range() after disposed')
     }
@@ -137,7 +159,7 @@ class DistributionCtx {
       if (!v.isValid) {
         throw RangeError(
           `Invalid distribution edge at index ${i}: ` +
-            `${v} is out of range 0 ~ 1 (provided ${range.join(', ')})`,
+            `${range[i]!} is out of range 0 ~ 1 (provided ${range.join(', ')})`,
         )
       }
 
@@ -146,7 +168,7 @@ class DistributionCtx {
       if (prev.isGreaterThan(v)) {
         throw TypeError(
           `Invalid distribution edges at index ${i - 1} / ${i}: ` +
-            `${prev} > ${v} (provided ${range.join(', ')})`,
+            `${range[i - 1]!} > ${range[i]!} (provided ${range.join(', ')})`,
         )
       }
     })
