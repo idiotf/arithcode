@@ -21,8 +21,8 @@ class DistributionCtx {
   private currentArrIdx = 0
 
   constructor(
-    private currentInput: number[] | ArithmeticValue | null = null,
-    private currentOutput: ArithmeticRange | number[] | null = null,
+    private currentInput: number[] | ArithmeticValue | null,
+    private currentOutput: ArithmeticRange | number[] | null,
   ) {}
 
   private encodeRange(i: number, fractionRange: ArithmeticValue[]) {
@@ -152,13 +152,14 @@ class DistributionCtx {
     })
 
     if (Array.isArray(this.currentInput)) {
-      const i = this.currentInput[this.currentArrIdx]
-      if (i === undefined) {
+      if (this.currentArrIdx >= this.currentInput.length) {
         throw RangeError(
           `Too small encoding input (received ` +
             `(${this.currentInput.length}) [${this.currentInput.join(', ')}])`,
         )
       }
+
+      const i = this.currentInput[this.currentArrIdx]!
       if (!Number.isInteger(i) || i < 0 || fractionRange.length < i) {
         throw RangeError(
           `Invalid encoding input data at index ${this.currentArrIdx}: ` +
@@ -189,8 +190,13 @@ export abstract class DistributionSerializerPeer<
 > implements DistributionLike<T> {
   encode(data: T) {
     const serialized = this.serialize(data)
-    const output = new ArithmeticRange()
+    if (!Array.isArray(serialized)) {
+      throw TypeError(
+        'The serialized encoding input must be an array of numbers',
+      )
+    }
 
+    const output = new ArithmeticRange()
     const ctx = new DistributionCtx(serialized, output)
     try {
       this.distribution(ctx)

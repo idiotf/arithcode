@@ -9,8 +9,6 @@ export function frac(a: any, b?: any) {
 }
 
 export class Fraction {
-  private static readonly view = new DataView(new ArrayBuffer(8))
-
   static commonDenominator(a: Fraction, b: Fraction) {
     if (!a.den || !b.den) {
       throw RangeError(
@@ -79,8 +77,9 @@ export class Fraction {
       )
     }
 
-    Fraction.view.setFloat64(0, a)
-    const bits = Fraction.view.getBigUint64(0)
+    const view = new DataView(new ArrayBuffer(8))
+    view.setFloat64(0, a)
+    const bits = view.getBigUint64(0)
     const sign = bits >> 63n ? -1n : 1n
     const exponent = (bits >> 52n) & 0x7ffn
     const fraction = bits & 0xfffffffffffffn

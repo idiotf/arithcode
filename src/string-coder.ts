@@ -1,4 +1,4 @@
-import { ArithmeticValue, type ArithmeticRange } from './values'
+import { ArithmeticValue, ArithmeticRange } from './values'
 import { ceilFraction } from './utils'
 
 export abstract class StringCoder {
@@ -10,6 +10,12 @@ export abstract class DigitCoder extends StringCoder {
   protected abstract charMap: string
 
   override encode(range: ArithmeticRange): string {
+    if (!(range instanceof ArithmeticRange)) {
+      throw TypeError(
+        'DigitCoder.encode(): The encoding input must be ArithmeticRange',
+      )
+    }
+
     if (!range.isValid) {
       throw RangeError(`Invalid range input: ${range}`)
     }
@@ -77,6 +83,10 @@ export abstract class DigitCoder extends StringCoder {
   }
 
   override decode(code: string) {
+    if (typeof code != 'string') {
+      throw TypeError('DigitCoder.decode(): The decoding input must be string')
+    }
+
     const charMap = this.charMap
     const digits = BigInt(charMap.length)
 
