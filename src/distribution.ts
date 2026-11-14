@@ -3,15 +3,17 @@ import { Fraction } from './fraction'
 import type { DistributionLike } from './protocol'
 
 type _TupleIndicesRecursive<
-  T extends unknown[],
+  T extends number,
   R extends unknown[],
-> = T['length'] extends R['length']
+> = T extends R['length']
   ? R[number]
   : _TupleIndicesRecursive<T, [...R, R['length']]>
 
 type TupleIndices<T extends unknown[]> = number extends T['length']
   ? number
-  : _TupleIndicesRecursive<T, []>
+  : T['length'] extends unknown
+    ? _TupleIndicesRecursive<T['length'], []>
+    : never
 
 const zeroFraction = /* #__PURE__ */ new ArithmeticValue(0n)
 const oneFraction = /* #__PURE__ */ new ArithmeticValue(1n)
