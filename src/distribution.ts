@@ -194,7 +194,7 @@ class DistributionCtx {
       this.encodeRange(i, fractionRange)
       ++this.currentArrIdx
 
-      return i
+      return i as TupleIndices<[0, ...T]>
     } else {
       const value = this.currentInput
       if (!value.isValid) {
@@ -202,7 +202,7 @@ class DistributionCtx {
           `Decoding input is out of range 0 ~ 1 (received ${value})`,
         )
       }
-      return this.decodeRange(value, fractionRange)
+      return this.decodeRange(value, fractionRange) as TupleIndices<[0, ...T]>
     }
   }
 }
