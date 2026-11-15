@@ -50,7 +50,6 @@ class DistributionCtx {
 
     range.den *= reducedDen
     range.low *= reducedDen
-    range.high *= reducedDen
 
     range.high = range.low + distancePer1 * reducedHigh
     range.low = range.low + distancePer1 * reducedLow
