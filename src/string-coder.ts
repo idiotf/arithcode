@@ -1,27 +1,55 @@
-import { ArithmeticValue, ArithmeticRange } from './values'
-import { ceilFraction } from './utils'
+import { ArithmeticValue, type ArithmeticRange } from './values'
+import { abs, ceilFraction, isValidArithmeticRange } from './utils'
 
 export abstract class StringCoder {
   abstract encode(range: ArithmeticRange): string
   abstract decode(code: string): ArithmeticValue
 }
 
+function asArithmeticRange(range: unknown) {
+  if (range && typeof range == 'object') {
+    const checkProps = (denKey: string, lowKey: string, highKey: string) => {
+      if (
+        denKey in range &&
+        lowKey in range &&
+        highKey in range &&
+        typeof (range as Record<string, unknown>)[denKey] == 'bigint' &&
+        typeof (range as Record<string, unknown>)[lowKey] == 'bigint' &&
+        typeof (range as Record<string, unknown>)[highKey] == 'bigint' &&
+        isValidArithmeticRange(
+          (range as Record<string, unknown>)[denKey] as bigint,
+          (range as Record<string, unknown>)[lowKey] as bigint,
+          (range as Record<string, unknown>)[highKey] as bigint,
+        )
+      ) {
+        return {
+          den: abs((range as Record<string, unknown>)[denKey] as bigint),
+          low: abs((range as Record<string, unknown>)[lowKey] as bigint),
+          high: abs((range as Record<string, unknown>)[highKey] as bigint),
+        }
+      }
+    }
+
+    const result =
+      checkProps('denAbs', 'lowAbs', 'highAbs') ||
+      checkProps('den', 'low', 'high')
+
+    if (result) return result
+  }
+
+  throw TypeError(
+    `DigitCoder.encode(): The encoding input ` +
+      `doesn't look like correct ArithmeticRange`,
+  )
+}
+
 export abstract class DigitCoder extends StringCoder {
   protected abstract charMap: string
 
   override encode(range: ArithmeticRange): string {
-    if (!(range instanceof ArithmeticRange)) {
-      throw TypeError(
-        'DigitCoder.encode(): The encoding input must be ArithmeticRange',
-      )
-    }
-
-    if (!range.isValid) {
-      throw RangeError(`Invalid range input: ${range}`)
-    }
-
-    let { lowAbs: low, highAbs: high } = range
-    const { denAbs: den } = range
+    const parsedRange = asArithmeticRange(range)
+    let { low, high } = parsedRange
+    const { den } = parsedRange
 
     if (low * 2n <= den && den < high * 2n) {
       return ''
