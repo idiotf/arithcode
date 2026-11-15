@@ -20,3 +20,11 @@ export function ceilFraction(num: bigint, den: bigint) {
 export function abs(v: bigint) {
   return v < 0n ? -v : v
 }
+
+export function isValidArithmeticRange(den: bigint, low: bigint, high: bigint) {
+  const sign = den < 0n ? -1n : 1n
+  const denAbs = den * sign
+  const lowAbs = low * sign
+  const highAbs = high * sign
+  return 0n <= lowAbs && lowAbs < highAbs && highAbs <= denAbs
+}

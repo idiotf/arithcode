@@ -1,5 +1,5 @@
 import { Fraction } from './fraction'
-import { abs } from './utils'
+import { abs, isValidArithmeticRange } from './utils'
 
 export class ArithmeticRange {
   constructor(
@@ -9,11 +9,7 @@ export class ArithmeticRange {
   ) {}
 
   get isValid() {
-    const sign = this.den < 0n ? -1n : 1n
-    const den = this.den * sign
-    const low = this.low * sign
-    const high = this.high * sign
-    return 0n <= low && low < high && high <= den
+    return isValidArithmeticRange(this.den, this.low, this.high)
   }
 
   get denAbs() {
