@@ -92,10 +92,13 @@ class DistributionCtx {
   }
 
   use<T>(distribution: DistributionSerializerPeer<unknown, T>) {
-    if (!(distribution instanceof DistributionSerializerPeer)) {
+    if (
+      !('distribution' in distribution) ||
+      typeof distribution['distribution'] != 'function'
+    ) {
       throw TypeError(
-        'DistributionCtx.use(): ' +
-          'The first argument must be DistributionSerializerPeer',
+        `DistributionCtx.use(): The first argument ` +
+          `doesn't look like DistributionSerializerPeer`,
       )
     }
 
