@@ -9,23 +9,19 @@ export abstract class StringCoder {
 function asArithmeticRange(range: unknown) {
   if (range && typeof range == 'object') {
     const checkProps = (denKey: string, lowKey: string, highKey: string) => {
+      const den = (range as Record<string, unknown>)[denKey]
+      const low = (range as Record<string, unknown>)[lowKey]
+      const high = (range as Record<string, unknown>)[highKey]
       if (
-        denKey in range &&
-        lowKey in range &&
-        highKey in range &&
-        typeof (range as Record<string, unknown>)[denKey] == 'bigint' &&
-        typeof (range as Record<string, unknown>)[lowKey] == 'bigint' &&
-        typeof (range as Record<string, unknown>)[highKey] == 'bigint' &&
-        isValidArithmeticRange(
-          (range as Record<string, unknown>)[denKey] as bigint,
-          (range as Record<string, unknown>)[lowKey] as bigint,
-          (range as Record<string, unknown>)[highKey] as bigint,
-        )
+        typeof den == 'bigint' &&
+        typeof low == 'bigint' &&
+        typeof high == 'bigint' &&
+        isValidArithmeticRange(den, low, high)
       ) {
         return {
-          den: abs((range as Record<string, unknown>)[denKey] as bigint),
-          low: abs((range as Record<string, unknown>)[lowKey] as bigint),
-          high: abs((range as Record<string, unknown>)[highKey] as bigint),
+          den: abs(den),
+          low: abs(low),
+          high: abs(high),
         }
       }
     }
