@@ -300,11 +300,7 @@ describe('distribution.ts', () => {
       it('Basic', () => {
         class MyDistribution extends Distribution {
           protected override distribution(ctx: DistributionCtx) {
-            ctx.rangeFrom([
-              1972,
-              1121,
-              624,
-            ])
+            ctx.rangeFrom([1972, 1121, 624])
           }
         }
 
@@ -320,11 +316,7 @@ describe('distribution.ts', () => {
       it('Sign flipped', () => {
         class MyDistribution extends Distribution {
           protected override distribution(ctx: DistributionCtx) {
-            ctx.rangeFrom([
-              frac(-1972, -1),
-              frac(-1121, -1),
-              frac(-624, -1),
-            ])
+            ctx.rangeFrom([frac(-1972, -1), frac(-1121, -1), frac(-624, -1)])
           }
         }
 

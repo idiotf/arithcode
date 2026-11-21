@@ -221,12 +221,9 @@ class DistributionCtx {
     const fracProbabilities = probabilities.map((v) => new Fraction(v))
 
     let totalNum = 0n
-    const denGcd = fracProbabilities.reduce(
-      (acc, { den }) => gcd(acc, den),
-      0n,
-    )
+    const denGcd = fracProbabilities.reduce((acc, { den }) => gcd(acc, den), 0n)
     fracProbabilities.forEach((v) => {
-      v.num = (totalNum += v.num * (denGcd / v.den))
+      v.num = totalNum += v.num * (denGcd / v.den)
     })
     fracProbabilities.forEach((v) => {
       v.den = totalNum
