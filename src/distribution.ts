@@ -1,5 +1,6 @@
 import { ArithmeticRange, ArithmeticValue } from './values'
 import { Fraction } from './fraction'
+import { gcd } from './utils'
 import type { DistributionLike } from './protocol'
 
 type _TupleIndicesRecursive<
@@ -9,7 +10,7 @@ type _TupleIndicesRecursive<
   ? R[number]
   : _TupleIndicesRecursive<T, [...R, R['length']]>
 
-type TupleIndices<T extends unknown[]> = number extends T['length']
+type TupleIndices<T extends readonly unknown[]> = number extends T['length']
   ? number
   : T['length'] extends unknown
     ? _TupleIndicesRecursive<T['length'], []>
@@ -207,6 +208,31 @@ class DistributionCtx {
       }
       return this.decodeRange(value, fractionRange) as TupleIndices<[0, ...T]>
     }
+  }
+
+  rangeFrom<const T extends readonly (number | Fraction)[]>(probabilities: T) {
+    if (probabilities.length === 0) {
+      throw RangeError(
+        'DistributionCtx.rangeFrom(): ' +
+          'At least one item is required in the probabilities array',
+      )
+    }
+
+    const fracProbabilities = probabilities.map((v) => new Fraction(v))
+
+    let totalNum = 0n
+    const denGcd = fracProbabilities.reduce(
+      (acc, { den }) => gcd(acc, den),
+      0n,
+    )
+    fracProbabilities.forEach((v) => {
+      v.num = (totalNum += v.num * (denGcd / v.den))
+    })
+    fracProbabilities.forEach((v) => {
+      v.den = totalNum
+    })
+
+    return this.range(fracProbabilities.slice(0, -1)) as TupleIndices<T>
   }
 }
 

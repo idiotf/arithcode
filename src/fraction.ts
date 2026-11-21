@@ -1,4 +1,4 @@
-import { gcd, isPositiveIntPowerOfTwo } from './utils'
+import { gcd } from './utils'
 
 export function frac(num: number | bigint, den: number | bigint): Fraction
 export function frac(value: number | bigint | Fraction): Fraction
@@ -16,8 +16,6 @@ export class Fraction {
       )
     }
 
-    let den, aCommonNum, bCommonNum
-
     const aSign = a.den < 0n ? -1n : 1n
     const aNum = a.num * aSign
     const aDen = a.den * aSign
@@ -26,24 +24,12 @@ export class Fraction {
     const bNum = b.num * bSign
     const bDen = b.den * bSign
 
-    if (isPositiveIntPowerOfTwo(aDen) && isPositiveIntPowerOfTwo(bDen)) {
-      if (aDen > bDen) {
-        den = aDen
-        aCommonNum = aNum
-        bCommonNum = (aDen / bDen) * bNum
-      } else {
-        den = bDen
-        aCommonNum = (bDen / aDen) * aNum
-        bCommonNum = bNum
-      }
-    } else {
-      const gcdValue = gcd(aDen, bDen)
-      den = (aDen / gcdValue) * bDen
-      aCommonNum = (bDen / gcdValue) * aNum
-      bCommonNum = (aDen / gcdValue) * bNum
+    const gcdValue = gcd(aDen, bDen)
+    return {
+      den: (aDen / gcdValue) * bDen,
+      a: (bDen / gcdValue) * aNum,
+      b: (aDen / gcdValue) * bNum,
     }
-
-    return { den, a: aCommonNum, b: bCommonNum }
   }
 
   num: bigint

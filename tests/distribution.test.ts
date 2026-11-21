@@ -169,7 +169,7 @@ describe('distribution.ts', () => {
         })
       })
 
-      it('Call decode() when bind() was called', () => {
+      it('Call decode() when use() was called', () => {
         class A extends Distribution {
           b = new B()
 
@@ -291,6 +291,50 @@ describe('distribution.ts', () => {
       describe('Sign flipped distribution', () => {
         describe('Common', () => testIt(signFlipDistribution))
         describe('Sign flipped', () => testIt(signFlipDistribution))
+      })
+    })
+  })
+
+  describe('DistributionCtx', () => {
+    describe('rangeFrom', () => {
+      it('Basic', () => {
+        class MyDistribution extends Distribution {
+          protected override distribution(ctx: DistributionCtx) {
+            ctx.rangeFrom([
+              1972,
+              1121,
+              624,
+            ])
+          }
+        }
+
+        const distribution = new MyDistribution()
+        const expected = new ArithmeticRange(3717n, 1972n, 3093n)
+        assert.deepStrictEqual(distribution.encode([1]), expected)
+        assert.deepStrictEqual(
+          distribution.decode(frac(expected.low, expected.den)),
+          [1],
+        )
+      })
+
+      it('Sign flipped', () => {
+        class MyDistribution extends Distribution {
+          protected override distribution(ctx: DistributionCtx) {
+            ctx.rangeFrom([
+              frac(-1972, -1),
+              frac(-1121, -1),
+              frac(-624, -1),
+            ])
+          }
+        }
+
+        const distribution = new MyDistribution()
+        const expected = new ArithmeticRange(3717n, 1972n, 3093n)
+        assert.deepStrictEqual(distribution.encode([1]), expected)
+        assert.deepStrictEqual(
+          distribution.decode(frac(expected.low, expected.den)),
+          [1],
+        )
       })
     })
   })

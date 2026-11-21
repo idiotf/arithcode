@@ -1,5 +1,5 @@
-export function isPositiveIntPowerOfTwo(positiveInt: bigint) {
-  return !(positiveInt & (positiveInt - 1n))
+export function abs(v: bigint) {
+  return v < 0n ? -v : v
 }
 
 export function gcd(a: bigint, b: bigint) {
@@ -15,10 +15,6 @@ export function ceilFraction(num: bigint, den: bigint) {
   return ((num > 0n && den > 0n) || (num < 0n && den < 0n)) && num % den
     ? num / den + 1n
     : num / den
-}
-
-export function abs(v: bigint) {
-  return v < 0n ? -v : v
 }
 
 export function isValidArithmeticRange(den: bigint, low: bigint, high: bigint) {
